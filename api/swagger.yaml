@@ -1,0 +1,83 @@
+openapi: "3.0.2"
+info:
+  title: Isolated Think - Source API
+  version: "1.0"
+servers:
+  - url: https://source.isolatedthink.test/v1
+  - url: http://localhost:8080
+  - url: 127.0.0.1:8080
+paths:
+  /v1/search/feed/{query}:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedItem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Error"
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+components:
+  schemas:
+    FeedItem:
+      type: object
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+        link:
+          type: string
+        source:
+          type: string
+        language:
+          type: string
+        image:
+          type: object
+          $ref: "#/components/schemas/FeedImage"
+        date:
+          type: string
+          format: date-time
+
+      required:
+        - title
+        - summary
+        - link
+        - source
+        - language
+        - date
+
+    FeedImage:
+      type: object
+      properties:
+        url:
+          type: string
+        title:
+          type: string
+      required:
+        - url
+        - title
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+      required:
+        - message
+        - code
