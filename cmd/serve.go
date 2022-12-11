@@ -3,15 +3,17 @@ package cmd
 import (
 	"errors"
 
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
-	blevex "github.com/luigibarbato/isolated-think-source/internal/repository/bleve"
-	"github.com/luigibarbato/isolated-think-source/internal/webserver"
+	"github.com/unconditionalday/server/internal/cobrax"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+	"github.com/unconditionalday/server/internal/webserver"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var (
-	ErrIndexNotFound = errors.New("index not found, please create it first using source command")
+	ErrIndexNotFound    = errors.New("index not found, please create it first using source command")
+	ErrIndexNotProvided = errors.New("index not provided, please provide it using --index flag")
 )
 
 func NewServeCommand() *cobra.Command {
@@ -21,6 +23,9 @@ func NewServeCommand() *cobra.Command {
 		Long:  `Starts the server`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			i := cobrax.Flag[string](cmd, "index").(string)
+			if i == "" {
+				return ErrIndexNotProvided
+			}
 
 			r, err := blevex.NewBleve(i)
 			if err != nil {
@@ -40,7 +45,7 @@ func NewServeCommand() *cobra.Command {
 	}
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("IT")
+	viper.SetEnvPrefix("unconditional")
 
 	cmd.Flags().StringP("address", "a", "", "Server address")
 	cmd.Flags().IntP("port", "p", 8080, "Server port")

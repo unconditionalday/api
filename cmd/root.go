@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
+	"github.com/unconditionalday/server/internal/cobrax"
 )
 
 type rootConfig struct {
@@ -59,7 +59,7 @@ func NewRootCommand(versions map[string]string) *RootCommand {
 	}
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("it")
+	viper.SetEnvPrefix("unconditional")
 
 	rootCmd.PersistentFlags().BoolVarP(&rootCmd.config.Debug, "debug", "D", false, "Enables Isolated-Thinker debug output")
 	rootCmd.PersistentFlags().BoolVarP(&rootCmd.config.DisableTty, "no-tty", "T", false, "Disable TTY")

@@ -3,16 +3,17 @@ package webserver
 import (
 	"fmt"
 
+	api "github.com/unconditionalday/server/api"
+	"github.com/unconditionalday/server/internal/app"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/luigibarbato/isolated-think-source/api"
-	"github.com/luigibarbato/isolated-think-source/internal/repository"
 	"go.uber.org/zap"
 )
 
 type Server struct {
 	config ServerConfig
-	repo   repository.Repository
+	repo   app.FeedRepository
 	client *echo.Echo
 }
 
@@ -21,7 +22,7 @@ type ServerConfig struct {
 	Address string
 }
 
-func NewServer(config ServerConfig, repo repository.Repository) *Server {
+func NewServer(config ServerConfig, repo app.FeedRepository) *Server {
 	return &Server{
 		client: echo.New(),
 		config: config,

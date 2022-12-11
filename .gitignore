@@ -1,0 +1,26 @@
+# Deps
+vendor/
+*.bleve
+source.json
+
+# Go workspace file
+go.work
+
+# VS Code
+.vscode/
+
+# GoLand
+.idea/
+
+# Vim
+*.swp
+
+# Emacs
+*~
+
+# Sublime Text
+*.sublime-workspace
+
+# Misc
+.DS_Store
+*.orig

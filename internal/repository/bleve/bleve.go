@@ -6,7 +6,7 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/mapping"
 
-	"github.com/luigibarbato/isolated-think-source/internal/app"
+	"github.com/unconditionalday/server/internal/app"
 )
 
 type Bleve struct {

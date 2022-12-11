@@ -3,13 +3,14 @@ package index
 import (
 	"errors"
 
+	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/iox"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+
 	"github.com/SlyMarbo/rss"
 	"github.com/blevesearch/bleve"
 	strip "github.com/grokify/html-strip-tags-go"
-	"github.com/luigibarbato/isolated-think-source/internal/app"
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
-	"github.com/luigibarbato/isolated-think-source/internal/iox"
-	blevex "github.com/luigibarbato/isolated-think-source/internal/repository/bleve"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

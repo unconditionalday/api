@@ -1,6 +1,4 @@
-# fly.toml file generated for indipendent-thinker on 2022-10-10T00:45:07+02:00
-
-app = "indipendent-thinker"
+app = "unconditional-server"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
