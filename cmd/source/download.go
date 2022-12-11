@@ -1,10 +1,11 @@
 package source
 
 import (
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
-	"github.com/luigibarbato/isolated-think-source/internal/iox"
-	"github.com/luigibarbato/isolated-think-source/internal/netx"
-	"github.com/luigibarbato/isolated-think-source/internal/service"
+	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/iox"
+	"github.com/unconditionalday/server/internal/netx"
+	"github.com/unconditionalday/server/internal/service"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -18,7 +19,7 @@ func NewDownloadCmd() *cobra.Command {
 			sp := cobrax.Flag[string](cmd, "path").(string)
 
 			s := service.NewSource(netx.NewFetcher())
-			sd, err := s.Download("https://raw.githubusercontent.com/indipendent-thinker/indipendent-thinker-source/main/source.json")
+			sd, err := s.Download("https://raw.githubusercontent.com/unconditionalday/source/main/source.json")
 			if err != nil {
 				return err
 			}
@@ -32,7 +33,7 @@ func NewDownloadCmd() *cobra.Command {
 	}
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("IT")
+	viper.SetEnvPrefix("unconditional")
 
 	cmd.Flags().StringP("path", "p", "", "Source path")
 

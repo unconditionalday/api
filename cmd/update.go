@@ -3,12 +3,13 @@ package cmd
 import (
 	"time"
 
+	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/iox"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+
 	"github.com/SlyMarbo/rss"
 	strip "github.com/grokify/html-strip-tags-go"
-	"github.com/luigibarbato/isolated-think-source/internal/app"
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
-	"github.com/luigibarbato/isolated-think-source/internal/iox"
-	blevex "github.com/luigibarbato/isolated-think-source/internal/repository/bleve"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -74,7 +75,7 @@ func NewUpdateCommand() *cobra.Command {
 	}
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("IT")
+	viper.SetEnvPrefix("unconditional")
 
 	cmd.Flags().StringP("source", "s", "", "Source path")
 	cmd.Flags().StringP("name", "n", "", "Index Name")

@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
-	blevex "github.com/luigibarbato/isolated-think-source/internal/repository/bleve"
-	"github.com/luigibarbato/isolated-think-source/internal/webserver"
+	"github.com/unconditionalday/server/internal/cobrax"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+	"github.com/unconditionalday/server/internal/webserver"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -44,7 +45,7 @@ func NewRunCommand() *cobra.Command {
 	}
 
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("IT")
+	viper.SetEnvPrefix("unconditional")
 
 	cmd.Flags().StringP("address", "a", "", "Server address")
 	cmd.Flags().IntP("port", "p", 8080, "Server port")

@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/luigibarbato/isolated-think-source/cmd"
+	cmd "github.com/unconditionalday/server/cmd"
+
 	"github.com/sirupsen/logrus"
 )
 

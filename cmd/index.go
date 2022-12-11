@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/luigibarbato/isolated-think-source/cmd/index"
+	"github.com/unconditionalday/server/cmd/index"
+
 	"github.com/spf13/cobra"
 )
 

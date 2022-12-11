@@ -3,13 +3,14 @@ package index
 import (
 	"errors"
 
+	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/iox"
+	"github.com/unconditionalday/server/internal/parser"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+
 	"github.com/SlyMarbo/rss"
 	"github.com/blevesearch/bleve"
-	strip "github.com/grokify/html-strip-tags-go"
-	"github.com/luigibarbato/isolated-think-source/internal/app"
-	"github.com/luigibarbato/isolated-think-source/internal/cobrax"
-	"github.com/luigibarbato/isolated-think-source/internal/iox"
-	blevex "github.com/luigibarbato/isolated-think-source/internal/repository/bleve"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -49,6 +50,8 @@ func NewCreateCommand() *cobra.Command {
 				feeds = append(feeds, feed)
 			}
 
+			p := parser.NewParser()
+
 			for _, feed := range feeds {
 				for _, item := range feed.Items {
 					f := app.Feed{
@@ -60,7 +63,7 @@ func NewCreateCommand() *cobra.Command {
 							Title: feed.Image.Title,
 							URL:   feed.Image.URL,
 						},
-						Summary: strip.StripTags(item.Summary),
+						Summary: p.Parse(item.Summary),
 						Date:    item.Date,
 					}
 

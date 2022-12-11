@@ -2,6 +2,21 @@ package app
 
 import "time"
 
+type FeedRepository interface {
+	// Search returns the results of a search query.
+	Find(query string) ([]Feed, error)
+	// Index indexes a document.
+	Save(doc Feed) error
+	// Delete deletes a document.
+	Delete(doc Feed) error
+	// Update updates a document.
+	Update(doc Feed) error
+	// Index indexes a document.
+	Index(id string, doc Feed) error
+	// Close closes the database.
+	Close() error
+}
+
 type Feed struct {
 	Title    string    `json:"title"`
 	Link     string    `json:"link"`

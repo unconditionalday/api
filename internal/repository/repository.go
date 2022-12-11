@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/luigibarbato/isolated-think-source/internal/app"
+import "github.com/unconditionalday/server/internal/app"
 
 type Repository interface {
 	// Search returns the results of a search query.

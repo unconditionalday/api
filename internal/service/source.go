@@ -3,8 +3,8 @@ package service
 import (
 	"encoding/json"
 
-	"github.com/luigibarbato/isolated-think-source/internal/app"
-	"github.com/luigibarbato/isolated-think-source/internal/netx"
+	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/netx"
 )
 
 type Source struct {
