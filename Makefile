@@ -9,6 +9,8 @@ endif
 
 
 .PHONY: prepare-ci
+
+prepare-ci:
 	@go install gotest.tools/gotestsum@latest
 
 
