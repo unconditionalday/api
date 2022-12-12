@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/unconditionalday/server/cmd/source"
-
 	"github.com/spf13/cobra"
+
+	"github.com/unconditionalday/server/cmd/source"
 )
 
 func NewSourceCommand() *cobra.Command {

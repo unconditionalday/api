@@ -44,7 +44,6 @@ func (b *Bleve) Find(query string) ([]app.Feed, error) {
 	var feeds []app.Feed
 	for _, hit := range searchResult.Hits {
 		date, err := time.Parse(time.RFC3339, hit.Fields["date"].(string))
-
 		if err != nil {
 			return nil, err
 		}

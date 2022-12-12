@@ -1,9 +1,9 @@
 package main
 
 import (
-	cmd "github.com/unconditionalday/server/cmd"
-
 	"github.com/sirupsen/logrus"
+
+	cmd "github.com/unconditionalday/server/cmd"
 )
 
 var (

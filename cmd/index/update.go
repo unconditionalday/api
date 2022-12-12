@@ -3,21 +3,19 @@ package index
 import (
 	"errors"
 
-	"github.com/unconditionalday/server/internal/app"
-	"github.com/unconditionalday/server/internal/cobrax"
-	"github.com/unconditionalday/server/internal/iox"
-	blevex "github.com/unconditionalday/server/internal/repository/bleve"
-
 	"github.com/SlyMarbo/rss"
 	"github.com/blevesearch/bleve"
 	strip "github.com/grokify/html-strip-tags-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/iox"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
 )
 
-var (
-	ErrSourceNotExists = errors.New("source not found, please download it first")
-)
+var ErrSourceNotExists = errors.New("source not found, please download it first")
 
 func NewUpdateCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -69,8 +67,8 @@ func NewUpdateCommand() *cobra.Command {
 				}
 			}
 
-			logrus.Infof("Index created: ", in)
-			logrus.Infof("Documents indexed: ", len(feeds))
+			logrus.Info("Index created: ", in)
+			logrus.Info("Documents indexed: ", len(feeds))
 
 			return nil
 		},

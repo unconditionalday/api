@@ -27,7 +27,7 @@ func WriteJSON[T any](path string, o T) error {
 	}
 
 	// Save the source.
-	err = os.WriteFile(path, fs, 0644)
+	err = os.WriteFile(path, fs, 0o644)
 	if err != nil {
 		return err
 	}
