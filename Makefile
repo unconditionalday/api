@@ -13,7 +13,6 @@ endif
 prepare-ci:
 	@go install gotest.tools/gotestsum@latest
 
-
 .PHONY: generate
 
 generate:
