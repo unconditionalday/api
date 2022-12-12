@@ -1,13 +1,13 @@
 package source
 
 import (
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/unconditionalday/server/internal/cobrax"
 	"github.com/unconditionalday/server/internal/iox"
 	"github.com/unconditionalday/server/internal/netx"
 	"github.com/unconditionalday/server/internal/service"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func NewDownloadCmd() *cobra.Command {
