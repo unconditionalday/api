@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/unconditionalday/server/cmd/index"
-
 	"github.com/spf13/cobra"
+
+	"github.com/unconditionalday/server/cmd/index"
 )
 
 func NewIndexCmd() *cobra.Command {

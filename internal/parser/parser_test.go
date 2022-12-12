@@ -3,9 +3,9 @@ package parser_test
 import (
 	"testing"
 
-	"github.com/unconditionalday/server/internal/parser"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/unconditionalday/server/internal/parser"
 )
 
 func TestParse(t *testing.T) {

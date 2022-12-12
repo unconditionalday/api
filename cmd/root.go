@@ -52,7 +52,6 @@ func NewRootCommand(versions map[string]string) *RootCommand {
 				} else {
 					logrus.SetLevel(logrus.InfoLevel)
 				}
-
 			},
 		},
 		config: cfg,

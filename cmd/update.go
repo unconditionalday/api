@@ -3,16 +3,16 @@ package cmd
 import (
 	"time"
 
-	"github.com/unconditionalday/server/internal/app"
-	"github.com/unconditionalday/server/internal/cobrax"
-	"github.com/unconditionalday/server/internal/iox"
-	blevex "github.com/unconditionalday/server/internal/repository/bleve"
-
 	"github.com/SlyMarbo/rss"
 	strip "github.com/grokify/html-strip-tags-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/iox"
+	blevex "github.com/unconditionalday/server/internal/repository/bleve"
 )
 
 func NewUpdateCommand() *cobra.Command {

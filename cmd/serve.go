@@ -3,12 +3,12 @@ package cmd
 import (
 	"errors"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/unconditionalday/server/internal/cobrax"
 	blevex "github.com/unconditionalday/server/internal/repository/bleve"
 	"github.com/unconditionalday/server/internal/webserver"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
