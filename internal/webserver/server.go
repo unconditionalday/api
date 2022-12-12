@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	api "github.com/unconditionalday/server/api"
-	"github.com/unconditionalday/server/internal/app"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
