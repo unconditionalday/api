@@ -1,6 +1,6 @@
 app = "unconditional-server"
 kill_signal = "SIGINT"
-kill_timeout = 0
+kill_timeout = 1
 processes = []
 
 [build.args]
