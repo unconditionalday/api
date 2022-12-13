@@ -46,6 +46,11 @@ func TestParse(t *testing.T) {
 			input:    "<p>hello</p>\n[Continue reading...]",
 			expected: "hello",
 		},
+		{
+			name:     "single word with html tags and new line and bloated text and special characters",
+			input:    "<p>hello</p>\n[Continue reading...]\n&#8211;",
+			expected: "hello",
+		},
 	}
 	for _, tc := range testCases {
 		tc := tc
