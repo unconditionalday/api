@@ -17,6 +17,9 @@ func (p *Parser) Parse(content string) string {
 	// remove html tags from the content
 	content = removeHTML(content)
 
+	// remove special characters from the content
+	content = removeSpecialCharacters(content)
+
 	// remove new lines from the content
 	content = removeNewLines(content)
 
@@ -36,6 +39,13 @@ func removeBloat(content string) string {
 		re = regexp.MustCompile(re.String() + "|" + regexp.QuoteMeta(b))
 	}
 
+	return re.ReplaceAllString(content, "")
+}
+
+// function to remove special characters from the content using regex
+func removeSpecialCharacters(content string) string {
+	// regex to match the text to remove (special characters)
+	re := regexp.MustCompile(`\&#?[a-z0-9]+;`)
 	return re.ReplaceAllString(content, "")
 }
 
