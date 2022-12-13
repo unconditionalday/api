@@ -24,4 +24,4 @@ ARG UNCONDITIONAL_PORT
 ENV UNCONDITIONAL_ADDRESS=${UNCONDITIONAL_ADDRESS}
 ENV UNCONDITIONAL_PORT=${UNCONDITIONAL_PORT}
 
-ENTRYPOINT ["./app/main","serve","--index","/data/index"]
+ENTRYPOINT ["./app/main","serve", "--address", "0.0.0.0", "--port","8080", "--index","/data/index"]
