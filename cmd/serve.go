@@ -47,7 +47,7 @@ func NewServeCommand() *cobra.Command {
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("unconditional")
 
-	cmd.Flags().StringP("address", "a", "", "Server address")
+	cmd.Flags().StringP("address", "a", "localhost", "Server address")
 	cmd.Flags().IntP("port", "p", 8080, "Server port")
 	cmd.Flags().StringP("index", "s", "", "Index path")
 
