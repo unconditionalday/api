@@ -53,7 +53,7 @@ func NewCreateCommand() *cobra.Command {
 			for _, feed := range feeds {
 				for _, item := range feed.Items {
 					f := app.Feed{
-						Title:    item.Title,
+						Title:    p.Parse(item.Title),
 						Link:     item.Link,
 						Source:   feed.Title,
 						Language: feed.Language,
@@ -65,7 +65,7 @@ func NewCreateCommand() *cobra.Command {
 						Date:    item.Date,
 					}
 
-					b.Index(f.Title, f)
+					b.Save(f)
 				}
 			}
 

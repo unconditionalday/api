@@ -23,6 +23,7 @@ require (
 	github.com/blevesearch/zap/v13 v13.0.6 // indirect
 	github.com/blevesearch/zap/v14 v14.0.5 // indirect
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
+	github.com/corpix/uarand v0.0.0-20170723150923-031be390f409 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
@@ -76,6 +77,7 @@ require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve v1.0.14
 	github.com/briandowns/spinner v1.19.0
+	github.com/icrowley/fake v0.0.0-20221112152111-d7b7e2276db2
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.1
