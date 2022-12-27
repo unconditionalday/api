@@ -26,8 +26,6 @@ type FeedRepository interface {
 	Delete(doc Feed) error
 	// Update updates a document.
 	Update(doc Feed) error
-	// Index indexes a document.
-	Index(id string, doc Feed) error
 	// Close closes the database.
 	Close() error
 }
