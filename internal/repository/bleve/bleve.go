@@ -91,14 +91,6 @@ func (b *Bleve) Update(doc app.Feed) error {
 	return nil
 }
 
-func (b *Bleve) Index(id string, doc app.Feed) error {
-	if err := b.client.Index(id, doc); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (b *Bleve) Close() error {
 	if err := b.client.Close(); err != nil {
 		return err
