@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/unconditionalday/server/internal/app"
-	"github.com/unconditionalday/server/internal/netx"
+	netx "github.com/unconditionalday/server/internal/x/net"
 )
 
 type Source struct {

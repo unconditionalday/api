@@ -5,13 +5,13 @@ import (
 	"net/http"
 )
 
-type Fetcher struct{}
+type HttpClient struct{}
 
-func NewFetcher() *Fetcher {
-	return &Fetcher{}
+func NewHttpClient() *HttpClient {
+	return &HttpClient{}
 }
 
-func (f *Fetcher) Download(src string) ([]byte, error) {
+func (h *HttpClient) Download(src string) ([]byte, error) {
 	resp, err := http.Get(src)
 	if err != nil {
 		return nil, err

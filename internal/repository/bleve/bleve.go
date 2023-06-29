@@ -86,11 +86,6 @@ func (b *Bleve) Delete(doc app.Feed) error {
 	return nil
 }
 
-func (b *Bleve) Update(doc app.Feed) error {
-	// TODO: implement
-	return nil
-}
-
 func (b *Bleve) Close() error {
 	if err := b.client.Close(); err != nil {
 		return err
