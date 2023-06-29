@@ -64,6 +64,11 @@ func NewCreateCommand() *cobra.Command {
 						Date:    item.Date,
 					}
 
+					if !f.IsValid() {
+						logrus.Warn("invalid feed: ", f)
+						continue
+					}
+
 					if err := b.Save(f); err != nil {
 						return err
 					}
