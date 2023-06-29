@@ -80,6 +80,6 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.24
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.4
 	golang.org/x/sys v0.8.0 // indirect
 )

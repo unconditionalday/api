@@ -48,14 +48,13 @@ func removeBloat(content string) string {
 func removeSpecialCharacters(content string) string {
 	// regex to match the text to remove (special characters)
 	re := regexp.MustCompile(`\&#?[a-z0-9]+;`)
+
 	return re.ReplaceAllString(content, "")
 }
 
 // function to remove html tags from the content using regex
 func removeHTML(content string) string {
-	p := bluemonday.StrictPolicy()
-
-	return p.Sanitize(content)
+	return bluemonday.StrictPolicy().Sanitize(content)
 }
 
 // function to remove new lines from the content using regex
