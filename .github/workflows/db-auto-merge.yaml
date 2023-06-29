@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: Dependabot auto-merge
 on: pull_request
 
@@ -20,3 +21,19 @@ jobs:
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+=======
+name: auto-merge
+
+on:
+  pull_request:
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ahmadnassri/action-dependabot-auto-merge@v2
+        with:
+          target: minor
+          github-token: ${{ github.token }}
+>>>>>>> 0e7e5ce (feat: add dependabot auto-merge)
