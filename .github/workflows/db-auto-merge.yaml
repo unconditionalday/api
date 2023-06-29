@@ -35,5 +35,9 @@ jobs:
       - uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
           target: minor
+<<<<<<< HEAD
           github-token: ${{ github.token }}
 >>>>>>> 0e7e5ce (feat: add dependabot auto-merge)
+=======
+          github-token: ${{ secrets.ACCESS_TOKEN }}
+>>>>>>> 4b36d7b (chore: use custom private secret for dependabot)
