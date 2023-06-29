@@ -35,7 +35,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
@@ -76,7 +76,7 @@ require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve v1.0.14
 	github.com/microcosm-cc/bluemonday v1.0.24
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/sys v0.8.0 // indirect
