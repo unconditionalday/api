@@ -24,8 +24,6 @@ type FeedRepository interface {
 	Save(doc Feed) error
 	// Delete deletes a document.
 	Delete(doc Feed) error
-	// Update updates a document.
-	Update(doc Feed) error
 	// Close closes the database.
 	Close() error
 }
