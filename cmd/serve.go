@@ -5,11 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/unconditionalday/server/internal/app"
 	blevex "github.com/unconditionalday/server/internal/repository/bleve"
 	"github.com/unconditionalday/server/internal/webserver"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
-	iox "github.com/unconditionalday/server/internal/x/io"
 )
 
 var (
@@ -41,12 +39,7 @@ func NewServeCommand() *cobra.Command {
 				Port:    p,
 			}
 
-			s, err := iox.ReadJSON("source.json", app.Source{})
-			if err != nil {
-				return err
-			}
-
-			return webserver.NewServer(sc, s, r).Start()
+			return webserver.NewServer(sc, r).Start()
 		},
 	}
 
