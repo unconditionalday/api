@@ -23,6 +23,14 @@ type Feed struct {
 	Date     time.Time `json:"date"`
 }
 
+func (f Feed) IsValid() bool {
+	if f.Title == "" || f.Link == "" || f.Source == "" || f.Date.IsZero() {
+		return false
+	}
+
+	return true
+}
+
 type Image struct {
 	Title string `json:"title"`
 	URL   string `json:"url"`
