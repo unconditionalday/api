@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/unconditionalday/server/internal/cobrax"
+	"github.com/unconditionalday/server/internal/x/cobra"
 )
 
 type rootConfig struct {

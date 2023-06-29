@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/unconditionalday/server/internal/app"
-	"github.com/unconditionalday/server/internal/cobrax"
-	"github.com/unconditionalday/server/internal/iox"
 	"github.com/unconditionalday/server/internal/parser"
 	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+	cobrax "github.com/unconditionalday/server/internal/x/cobra"
+	iox "github.com/unconditionalday/server/internal/x/io"
 )
 
 var ErrSourceNotFound = errors.New("source not found, please download it first using source command")
@@ -25,8 +25,7 @@ func NewCreateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			sp := cobrax.Flag[string](cmd, "source").(string)
 
-			var source app.Source
-			source, err := iox.ReadJSON(sp, source)
+			source, err := iox.ReadJSON(sp, app.Source{})
 			if err != nil {
 				return err
 			}
@@ -65,7 +64,9 @@ func NewCreateCommand() *cobra.Command {
 						Date:    item.Date,
 					}
 
-					b.Save(f)
+					if err := b.Save(f); err != nil {
+						return err
+					}
 				}
 			}
 
