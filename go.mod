@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/deepmap/oapi-codegen v1.11.0
 	github.com/getkin/kin-openapi v0.103.0
-	github.com/grokify/html-strip-tags-go v0.0.1
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/sirupsen/logrus v1.9.0
 	go.uber.org/zap v1.17.0
@@ -23,10 +22,8 @@ require (
 	github.com/blevesearch/zap/v13 v13.0.6 // indirect
 	github.com/blevesearch/zap/v14 v14.0.5 // indirect
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
-	github.com/corpix/uarand v0.0.0-20170723150923-031be390f409 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/glycerine/go-unsnap-stream v0.0.0-20181221182339-f9677308dec2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -76,8 +73,6 @@ require (
 require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve v1.0.14
-	github.com/briandowns/spinner v1.19.0
-	github.com/icrowley/fake v0.0.0-20221112152111-d7b7e2276db2
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.1
