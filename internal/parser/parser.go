@@ -2,6 +2,8 @@ package parser
 
 import (
 	"regexp"
+
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type Parser struct{}
@@ -51,10 +53,9 @@ func removeSpecialCharacters(content string) string {
 
 // function to remove html tags from the content using regex
 func removeHTML(content string) string {
-	// regex to remove html tags
-	re := regexp.MustCompile(`<.*?>`)
+	p := bluemonday.StrictPolicy()
 
-	return re.ReplaceAllString(content, "")
+	return p.Sanitize(content)
 }
 
 // function to remove new lines from the content using regex
