@@ -6,7 +6,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.13.0
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	go.uber.org/zap v1.24.0
 )
 
