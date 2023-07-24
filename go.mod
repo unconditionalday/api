@@ -96,7 +96,7 @@ require (
 require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve/v2 v2.3.9
-	github.com/microcosm-cc/bluemonday v1.0.24
+	github.com/microcosm-cc/bluemonday v1.0.25
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
