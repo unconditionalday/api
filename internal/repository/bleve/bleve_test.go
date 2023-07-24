@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/mapping"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/repository/bleve"
 )
