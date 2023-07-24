@@ -3,8 +3,8 @@ package bleve
 import (
 	"time"
 
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/mapping"
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/mapping"
 
 	"github.com/unconditionalday/server/internal/app"
 )

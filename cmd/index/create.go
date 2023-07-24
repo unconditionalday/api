@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/SlyMarbo/rss"
-	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
