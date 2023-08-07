@@ -60,7 +60,7 @@ func removeHTML(content string) string {
 // function to remove new lines from the content using regex
 func removeNewLines(content string) string {
 	// regex to match the text to remove
-	re := regexp.MustCompile(`\r?\n`)
+	re := regexp.MustCompile(` ?\n`)
 
 	return re.ReplaceAllString(content, "")
 }
