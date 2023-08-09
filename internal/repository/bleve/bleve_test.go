@@ -25,7 +25,7 @@ func TestBleveIndex(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var err error
 
-			tc.b, err = bleve.NewBleveIndex("test.bleve", mapping.NewIndexMapping())
+			tc.b, err = bleve.NewIndex("test.bleve", mapping.NewIndexMapping())
 
 			defer os.RemoveAll("test.bleve")
 
@@ -63,7 +63,7 @@ func TestSave(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := bleve.NewBleveIndex("test.bleve", mapping.NewIndexMapping())
+			b, err := bleve.NewIndex("test.bleve", mapping.NewIndexMapping())
 			if b == nil {
 				t.Fatalf("expected bleve to be created")
 			}
@@ -102,9 +102,13 @@ func TestFind(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			b, err := bleve.NewBleveIndex("test.bleve", mapping.NewIndexMapping())
+			b, err := bleve.NewIndex("test.bleve", mapping.NewIndexMapping())
 			if b == nil {
 				t.Fatalf("expected bleve to be created")
+			}
+
+			if err != nil {
+				t.Fatalf("expected no error during bleve creation")
 			}
 
 			defer os.RemoveAll("test.bleve")

@@ -14,6 +14,7 @@ type FeedRepository interface {
 }
 
 type Feed struct {
+	ID       string    `json:"id"`
 	Title    string    `json:"title"`
 	Link     string    `json:"link"`
 	Language string    `json:"language"`
@@ -21,10 +22,11 @@ type Feed struct {
 	Summary  string    `json:"summary"`
 	Source   string    `json:"source"`
 	Date     time.Time `json:"date"`
+	Related  []string  `json:"related"`
 }
 
 func (f Feed) IsValid() bool {
-	if f.Title == "" || f.Link == "" || f.Source == "" || f.Date.IsZero() {
+	if f.ID == "" || f.Title == "" || f.Link == "" || f.Source == "" || f.Date.IsZero() {
 		return false
 	}
 

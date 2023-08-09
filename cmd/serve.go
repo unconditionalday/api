@@ -26,7 +26,7 @@ func NewServeCommand() *cobra.Command {
 				return ErrIndexNotProvided
 			}
 
-			r, err := blevex.NewBleve(i)
+			r, err := blevex.New(i)
 			if err != nil {
 				return ErrIndexNotFound
 			}

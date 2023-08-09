@@ -13,7 +13,7 @@ type Bleve struct {
 	client bleve.Index
 }
 
-func NewBleve(path string) (*Bleve, error) {
+func New(path string) (*Bleve, error) {
 	b, err := bleve.Open(path)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func NewBleve(path string) (*Bleve, error) {
 	return &Bleve{client: b}, nil
 }
 
-func NewBleveIndex(path string, mapping mapping.IndexMapping) (*Bleve, error) {
+func NewIndex(path string, mapping mapping.IndexMapping) (*Bleve, error) {
 	b, err := bleve.New(path, mapping)
 	if err != nil {
 		return nil, err
@@ -76,6 +76,15 @@ func (b *Bleve) Save(doc app.Feed) error {
 	}
 
 	return nil
+}
+
+func (b *Bleve) Len() (uint64, error) {
+	len, err := b.client.DocCount()
+	if err != nil {
+		return 0, err
+	}
+
+	return len, nil
 }
 
 func (b *Bleve) Delete(doc app.Feed) error {

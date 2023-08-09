@@ -2,6 +2,9 @@ package index
 
 import (
 	"errors"
+	"fmt"
+	"os/exec"
+	"strconv"
 
 	"github.com/SlyMarbo/rss"
 	"github.com/blevesearch/bleve/v2"
@@ -31,7 +34,7 @@ func NewCreateCommand() *cobra.Command {
 			}
 
 			in := cobrax.Flag[string](cmd, "name").(string)
-			b, err := blevex.NewBleveIndex(in, bleve.NewIndexMapping())
+			b, err := blevex.NewIndex(in, bleve.NewIndexMapping())
 			if err != nil {
 				return err
 			}
@@ -40,7 +43,7 @@ func NewCreateCommand() *cobra.Command {
 			for _, s := range source {
 				feed, err := rss.Fetch(s.URL)
 				if err != nil {
-					logrus.Warnf("error fetching feed %s: %s", s.URL, err)
+					// logrus.Warnf("error fetching feed %s: %s", s.URL, err)
 					continue
 				}
 
@@ -49,9 +52,11 @@ func NewCreateCommand() *cobra.Command {
 
 			p := parser.NewParser()
 
+			var feedsItems []app.Feed
 			for _, feed := range feeds {
 				for _, item := range feed.Items {
 					f := app.Feed{
+						ID:       item.ID,
 						Title:    p.Parse(item.Title),
 						Link:     item.Link,
 						Source:   feed.Title,
@@ -69,9 +74,19 @@ func NewCreateCommand() *cobra.Command {
 						continue
 					}
 
-					if err := b.Save(f); err != nil {
-						return err
+					feedsItems = append(feedsItems, f)
+				}
+			}
+
+			for i, f := range feedsItems {
+				for j := i + 1; j < len(feedsItems); j++ {
+					if err := getRelation(f, feedsItems[j]); err != nil {
+						logrus.Warn("error getting relation: ", err)
 					}
+				}
+
+				if err := b.Save(f); err != nil {
+					logrus.Warn("error saving feed: ", err)
 				}
 			}
 
@@ -86,4 +101,38 @@ func NewCreateCommand() *cobra.Command {
 	cmd.Flags().StringP("name", "n", "", "Index Name")
 
 	return cmd
+}
+
+func getRelation(source, target app.Feed) error {
+	for _, r := range source.Related {
+		if r == target.ID {
+			return nil
+		}
+	}
+
+	for _, r := range target.Related {
+		if r == source.ID {
+			return nil
+		}
+	}
+
+	cmd := exec.Command("python3", "/Users/luigibarbato/Dev/Projects/unconditional/informer/relation.py", source.Title, target.Title)
+	out, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	outConv, err := strconv.ParseFloat(string(out), 64)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(source.Title, target.Title, outConv)
+
+	if outConv > 0.8 {
+		source.Related = append(source.Related, target.ID)
+		target.Related = append(target.Related, source.ID)
+	}
+
+	return nil
 }
