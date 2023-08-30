@@ -45,6 +45,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 $ref: "#/components/schemas/ServerVersion"
       operationId: get-v1-version
       x-stoplight:
@@ -55,6 +56,30 @@ paths:
             schema:
               type: object
               properties: {}
+  /v1/informer/wiki/{query}:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/WikiResult"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/Error"
+      parameters:
+        - name: query
+          in: path
+          required: true
+          schema:
+            type: string
+
 components:
   schemas:
     FeedItem:
@@ -97,6 +122,27 @@ components:
         - title
       x-stoplight:
         id: g5p7hclip2ydk
+
+    WikiResult:
+      type: object
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        summary:
+          type: string
+        thumbnail:
+          type: string
+        language:
+          type: string
+
+      required:
+        - title
+        - link
+        - summary
+        - thumbnail
+        - language
     Error:
       type: object
       properties:

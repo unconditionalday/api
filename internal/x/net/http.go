@@ -21,3 +21,10 @@ func (h *HttpClient) Download(src string) ([]byte, error) {
 
 	return ioutil.ReadAll(resp.Body)
 }
+
+func HelpAddURL(s string) string {
+	if s[0:4] == "http" {
+		return s
+	}
+	return "http:" + s
+}
