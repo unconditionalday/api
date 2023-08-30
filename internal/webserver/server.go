@@ -111,3 +111,27 @@ func (s *Server) GetV1Version(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, v)
 }
+
+func (s *Server) GetV1InformerWikiQuery(ctx echo.Context, query string) error {
+	w := informer.NewWiki()
+
+	wikiRes, err := w.Search(query, "en")
+	if err != nil {
+		e := api.Error{
+			Code:    500,
+			Message: "Internal Server Error",
+		}
+
+		return ctx.JSON(500, e)
+	}
+
+	res := api.WikiResult{
+		Language:  wikiRes.Language,
+		Link:      wikiRes.Link,
+		Summary:   wikiRes.Summary,
+		Thumbnail: wikiRes.Thumbnail,
+		Title:     wikiRes.Title,
+	}
+
+	return ctx.JSON(200, res)
+}
