@@ -66,8 +66,20 @@ type GetV1VersionJSONBody map[string]interface{}
 // GetV1VersionJSONRequestBody defines body for GetV1Version for application/json ContentType.
 type GetV1VersionJSONRequestBody GetV1VersionJSONBody
 
+// WikiResult defines model for WikiResult.
+type WikiResult struct {
+	Language  string `json:"language"`
+	Link      string `json:"link"`
+	Summary   string `json:"summary"`
+	Thumbnail string `json:"thumbnail"`
+	Title     string `json:"title"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+
+	// (GET /v1/informer/wiki/{query})
+	GetV1InformerWikiQuery(ctx echo.Context, query string) error
 
 	// (GET /v1/search/feed/{query})
 	GetV1SearchFeedQuery(ctx echo.Context, query string) error
@@ -79,6 +91,22 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// GetV1InformerWikiQuery converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1InformerWikiQuery(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "query" -------------
+	var query string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "query", runtime.ParamLocationPath, ctx.Param("query"), &query)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter query: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetV1InformerWikiQuery(ctx, query)
+	return err
 }
 
 // GetV1SearchFeedQuery converts echo context to params.
@@ -134,6 +162,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/v1/informer/wiki/:query", wrapper.GetV1InformerWikiQuery)
 	router.GET(baseURL+"/v1/search/feed/:query", wrapper.GetV1SearchFeedQuery)
 	router.GET(baseURL+"/v1/version", wrapper.GetV1Version)
 
