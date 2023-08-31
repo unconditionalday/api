@@ -14,19 +14,18 @@ type FeedRepository interface {
 }
 
 type Feed struct {
-	ID       string    `json:"id"`
-	Title    string    `json:"title"`
-	Link     string    `json:"link"`
-	Language string    `json:"language"`
-	Image    *Image    `json:"image"`
-	Summary  string    `json:"summary"`
-	Source   string    `json:"source"`
-	Date     time.Time `json:"date"`
-	Related  []string  `json:"related"`
+	Title           string    `json:"title"`
+	Link            string    `json:"link"`
+	Language        string    `json:"language"`
+	Image           *Image    `json:"image"`
+	Summary         string    `json:"summary"`
+	Source          string    `json:"source"`
+	Date            time.Time `json:"date"`
+	VectorEmbedding [][]float64
 }
 
 func (f Feed) IsValid() bool {
-	if f.ID == "" || f.Title == "" || f.Link == "" || f.Source == "" || f.Date.IsZero() {
+	if f.Title == "" || f.Link == "" || f.Source == "" || f.Date.IsZero() {
 		return false
 	}
 

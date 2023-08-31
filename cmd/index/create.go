@@ -1,10 +1,11 @@
 package index
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"os/exec"
-	"strconv"
+	"sync"
 
 	"github.com/SlyMarbo/rss"
 	"github.com/blevesearch/bleve/v2"
@@ -52,11 +53,10 @@ func NewCreateCommand() *cobra.Command {
 
 			p := parser.NewParser()
 
-			var feedsItems []app.Feed
+			feedsItems := make([]app.Feed, 0)
 			for _, feed := range feeds {
 				for _, item := range feed.Items {
 					f := app.Feed{
-						ID:       item.ID,
 						Title:    p.Parse(item.Title),
 						Link:     item.Link,
 						Source:   feed.Title,
@@ -78,20 +78,56 @@ func NewCreateCommand() *cobra.Command {
 				}
 			}
 
-			for i, f := range feedsItems {
-				for j := i + 1; j < len(feedsItems); j++ {
-					if err := getRelation(f, feedsItems[j]); err != nil {
-						logrus.Warn("error getting relation: ", err)
-					}
-				}
+			// Definisci il numero massimo di goroutine che desideri eseguire contemporaneamente
+			maxGoroutines := 10
 
+			// Creare un canale per comunicare il completamento delle goroutine
+			done := make(chan struct{})
+
+			// Creare un semaforo per limitare il numero di goroutine in esecuzione contemporaneamente
+			semaphore := make(chan struct{}, maxGoroutines)
+
+			var wg sync.WaitGroup
+
+			for f := range feedsItems {
+				wg.Add(1)
+
+				go func(f int) {
+					defer wg.Done()
+
+					// Acquisisci un semaforo per limitare il numero di goroutine in esecuzione contemporaneamente
+					semaphore <- struct{}{}
+
+					embeddings, err := getRelation(feedsItems[f])
+					if err != nil {
+						log.Println("Errore nell'ottenere la relazione:", err)
+					} else {
+						logrus.Info("Embeddings: ", embeddings)
+						feedsItems[f].VectorEmbedding = embeddings
+					}
+
+					// Rilascia il semaforo una volta terminato
+					<-semaphore
+				}(f)
+			}
+
+			// Attendere il completamento di tutte le goroutine
+			go func() {
+				wg.Wait()
+				close(done)
+			}()
+
+			// Attendere il completamento di tutte le goroutine prima di uscire
+			<-done
+
+			for _, f := range feedsItems {
 				if err := b.Save(f); err != nil {
-					logrus.Warn("error saving feed: ", err)
+					return err
 				}
 			}
 
 			logrus.Info("Index created: ", in)
-			logrus.Info("Documents indexed: ", len(feeds))
+			logrus.Info("Feeds: ", len(feeds))
 
 			return nil
 		},
@@ -103,36 +139,18 @@ func NewCreateCommand() *cobra.Command {
 	return cmd
 }
 
-func getRelation(source, target app.Feed) error {
-	for _, r := range source.Related {
-		if r == target.ID {
-			return nil
-		}
-	}
-
-	for _, r := range target.Related {
-		if r == source.ID {
-			return nil
-		}
-	}
-
-	cmd := exec.Command("python3", "/Users/luigibarbato/Dev/Projects/unconditional/informer/relation.py", source.Title, target.Title)
+func getRelation(source app.Feed) ([][]float64, error) {
+	cmd := exec.Command("python3", "/Users/luigibarbato/Dev/Projects/unconditional/informer/main.py", source.Title)
 	out, err := cmd.Output()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	outConv, err := strconv.ParseFloat(string(out), 64)
-	if err != nil {
-		return err
+	var sentenceEmbeddings [][]float64
+
+	if err := json.Unmarshal(out, &sentenceEmbeddings); err != nil {
+		return nil, err
 	}
 
-	fmt.Println(source.Title, target.Title, outConv)
-
-	if outConv > 0.8 {
-		source.Related = append(source.Related, target.ID)
-		target.Related = append(target.Related, source.ID)
-	}
-
-	return nil
+	return sentenceEmbeddings, nil
 }
