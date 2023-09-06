@@ -10,6 +10,7 @@ import (
 	"github.com/unconditionalday/server/internal/service"
 	"github.com/unconditionalday/server/internal/version"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
+	"go.uber.org/zap"
 )
 
 var (

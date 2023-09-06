@@ -6,8 +6,13 @@ import (
 	"github.com/unconditionalday/server/internal/informer/wiki"
 )
 
+var (
+	ErrEmptyQuery    = errors.New("query string must not be empty")
+	ErrEmptyLanguage = errors.New("language string must not be empty")
+)
+
 type Wiki struct {
-	client wiki.Client
+	client *wiki.Client
 }
 
 func NewWiki() *Wiki {
@@ -16,13 +21,13 @@ func NewWiki() *Wiki {
 	}
 }
 
-func (w *Wiki) Search(query string, lang string) (Result, error) {
+func (w *Wiki) Search(query string, lang string) (WikiInfo, error) {
 	if query == "" {
-		return Result{}, errors.New("query string must not be empty")
+		return WikiInfo{}, ErrEmptyQuery
 	}
 
 	if lang == "" {
-		return Result{}, errors.New("language string must not be empty")
+		return WikiInfo{}, ErrEmptyLanguage
 	}
 
 	args := map[string]string{
@@ -33,31 +38,38 @@ func (w *Wiki) Search(query string, lang string) (Result, error) {
 		"srsearch": query,
 	}
 
-	res, err := w.client.RequestWikiApi(args, lang)
+	res, err := w.client.DoRequest(args, lang)
 	if err != nil {
-		return Result{}, err
+		return WikiInfo{}, err
+	}
+
+	if len(res.Query.Search) == 0 {
+		return WikiInfo{}, nil
 	}
 
 	title := res.Query.Search[0].Title
 
 	wikiPage, err := wiki.MakeWikipediaPage(-1, title, "", false, w.client, lang)
+	if wikiPage.Disambiguation != nil {
+		title = wikiPage.Disambiguation[0]
+		wikiPage, err = wiki.MakeWikipediaPage(-1, title, "", false, w.client, lang)
+	}
+
 	if err != nil {
-		if err.Error() == "disambiguation" {
-			return Result{}, errors.New("ambiguous result")
-		}
+		return WikiInfo{}, err
 	}
 
 	summary, err := wikiPage.GetSummary(w.client, lang)
 	if err != nil {
-		return Result{}, err
+		return WikiInfo{}, err
 	}
 
 	thumbnail, err := wikiPage.GetThumbURL(w.client, lang)
 	if err != nil {
-		return Result{}, err
+		return WikiInfo{}, err
 	}
 
-	return Result{
+	return WikiInfo{
 		Title:     wikiPage.Title,
 		Language:  wikiPage.Language,
 		Link:      wikiPage.URL,
@@ -66,7 +78,7 @@ func (w *Wiki) Search(query string, lang string) (Result, error) {
 	}, nil
 }
 
-type Result struct {
+type WikiInfo struct {
 	Title     string
 	Link      string
 	Summary   string
@@ -74,6 +86,6 @@ type Result struct {
 	Language  string
 }
 
-func (r Result) IsValid() bool {
+func (r WikiInfo) IsValid() bool {
 	return r.Title != "" && r.Link != "" && r.Summary != "" && r.Thumbnail != "" && r.Language != ""
 }
