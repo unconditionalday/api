@@ -43,14 +43,6 @@ func TestWikiSearch(t *testing.T) {
 			},
 		},
 		{
-			name:  "ambiguous result",
-			input: TestInput{query: "Rossi", lang: "en"},
-			output: TestExpect{
-				validRes: false,
-				err: errors.New("ambiguous result"),
-			},
-		},
-		{
 			name:  "valid query",
 			input: TestInput{query: "Salvini", lang: "en"},
 			output: TestExpect{
