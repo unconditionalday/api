@@ -113,14 +113,15 @@ func (s *Server) GetV1Version(ctx echo.Context) error {
 }
 
 func (s *Server) GetV1InformerWikiQuery(ctx echo.Context, query string) error {
-	w := informer.NewWiki()
-
-	wikiRes, err := w.Search(query, "en")
+	// TODO: add language support
+	wikiRes, err := s.wiki.Search(query, "en")
 	if err != nil {
 		e := api.Error{
 			Code:    500,
 			Message: "Internal Server Error",
 		}
+
+		s.logger.Error("wiki search", zap.Error(err))
 
 		return ctx.JSON(500, e)
 	}

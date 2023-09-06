@@ -2,11 +2,12 @@ package wiki
 
 import (
 	"errors"
-	"maps"
-	"slices"
 
+	"github.com/anaskhan96/soup"
 	mapsx "github.com/unconditionalday/server/internal/x/maps"
 	netx "github.com/unconditionalday/server/internal/x/net"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 
 	"reflect"
 	"strconv"
@@ -49,7 +50,7 @@ func (page WikipediaPage) Equal(other WikipediaPage) bool {
 /*
 Get the string content of the page. Save it into the page.Content for later use
 */
-func (page *WikipediaPage) GetContent(client Client, lang string) (string, error) {
+func (page *WikipediaPage) GetContent(client *Client, lang string) (string, error) {
 	if page.Content != "" {
 		return page.Content, nil
 	}
@@ -61,13 +62,11 @@ func (page *WikipediaPage) GetContent(client Client, lang string) (string, error
 		"rvprop":      "ids",
 		"titles":      page.Title,
 	}
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
-	if res.Error.Code != "" {
-		return "", errors.New(res.Error.Info)
-	}
+
 	page.Content = res.Query.Page[pageid].Extract
 	page.RevisionID = res.Query.Page[pageid].Revision[0]["revid"].(float64)
 	page.ParentID = res.Query.Page[pageid].Revision[0]["parentid"].(float64)
@@ -80,7 +79,7 @@ Get the html of the page. Save it into the page.HTML for later use\
 
 **Warning:: This can get pretty slow on long pages.
 */
-func (page *WikipediaPage) GetHTML(client Client, lang string) (string, error) {
+func (page *WikipediaPage) GetHTML(client *Client, lang string) (string, error) {
 	if page.HTML != "" {
 		return page.HTML, nil
 	}
@@ -92,7 +91,7 @@ func (page *WikipediaPage) GetHTML(client Client, lang string) (string, error) {
 		"rvparse": "",
 		"titles":  page.Title,
 	}
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -110,7 +109,7 @@ The revision ID is a number that uniquely identifies the current version of the 
 It can be used to create the permalink or for other direct API calls. See Help:Page history <http://en.wikipedia.org/wiki/Wikipedia:Revision>
 for more information.
 */
-func (page *WikipediaPage) GetRevisionID(client Client, lang string) (float64, error) {
+func (page *WikipediaPage) GetRevisionID(client *Client, lang string) (float64, error) {
 	if page.RevisionID != 0 {
 		return page.RevisionID, nil
 	}
@@ -126,7 +125,7 @@ Revision ID of the parent version of the current revision of this page.
 
 See “revision_id“ for more information.
 */
-func (page *WikipediaPage) GetParentID(client Client, lang string) (float64, error) {
+func (page *WikipediaPage) GetParentID(client *Client, lang string) (float64, error) {
 	if page.RevisionID != 0 {
 		return page.ParentID, nil
 	}
@@ -140,7 +139,7 @@ func (page *WikipediaPage) GetParentID(client Client, lang string) (float64, err
 /*
 String summary of a page
 */
-func (page *WikipediaPage) GetSummary(client Client, lang string) (string, error) {
+func (page *WikipediaPage) GetSummary(client *Client, lang string) (string, error) {
 	if page.Summary != "" {
 		return page.Summary, nil
 	}
@@ -155,7 +154,7 @@ func (page *WikipediaPage) GetSummary(client Client, lang string) (string, error
 		"exlimit":     "1",
 		"titles":      page.Title,
 	}
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -167,7 +166,7 @@ func (page *WikipediaPage) GetSummary(client Client, lang string) (string, error
 /*
 Based on <https://www.mediawiki.org/wiki/API:Query#Continuing_queries>
 */
-func (page *WikipediaPage) ContinuedQuery(args map[string]string, client Client, lang string) ([]interface{}, error) {
+func (page *WikipediaPage) ContinuedQuery(args map[string]string, client *Client, lang string) ([]interface{}, error) {
 	// args["pageids"] = strconv.Itoa(page.PageID)
 	args["titles"] = page.Title
 	last := map[string]interface{}{}
@@ -177,7 +176,7 @@ func (page *WikipediaPage) ContinuedQuery(args map[string]string, client Client,
 		new_args := maps.Clone(args)
 		mapsx.Update(new_args, last)
 
-		res, err := client.RequestWikiApi(args, lang)
+		res, err := client.DoRequest(args, lang)
 		if err != nil {
 			return result, err
 		}
@@ -226,7 +225,7 @@ func (page *WikipediaPage) ContinuedQuery(args map[string]string, client Client,
 /*
 List of URLs of images on the page.
 */
-func (page *WikipediaPage) GetImagesURL(client Client, lang string) ([]string, error) {
+func (page *WikipediaPage) GetImagesURL(client *Client, lang string) ([]string, error) {
 	if page.CheckedImage {
 		return page.Images, nil
 	}
@@ -257,7 +256,7 @@ func (page *WikipediaPage) GetImagesURL(client Client, lang string) ([]string, e
 /*
 Get Thumbnail URL of the page
 */
-func (page *WikipediaPage) GetThumbURL(client Client, lang string) (string, error) {
+func (page *WikipediaPage) GetThumbURL(client *Client, lang string) (string, error) {
 	if page.CheckedThumb {
 		return page.Thumbnail, nil
 	}
@@ -270,7 +269,7 @@ func (page *WikipediaPage) GetThumbURL(client Client, lang string) (string, erro
 		"pithumbsize": "500",
 	}
 
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -284,7 +283,7 @@ func (page *WikipediaPage) GetThumbURL(client Client, lang string) (string, erro
 /*
 Slice of float64 in the form of (lat, lon)
 */
-func (page *WikipediaPage) GetCoordinate(client Client, lang string) ([]float64, error) {
+func (page *WikipediaPage) GetCoordinate(client *Client, lang string) ([]float64, error) {
 	if len(page.Coordinate) == 2 {
 		return page.Coordinate, nil
 	}
@@ -295,7 +294,7 @@ func (page *WikipediaPage) GetCoordinate(client Client, lang string) ([]float64,
 		"titles":  page.Title,
 	}
 
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return []float64{}, err
 	}
@@ -317,7 +316,7 @@ func (page *WikipediaPage) GetCoordinate(client Client, lang string) ([]float64,
 		List of URLs of external links on a page.
 	    May include external links within page that aren't technically cited anywhere.
 */
-func (page *WikipediaPage) GetReference(client Client, lang string) ([]string, error) {
+func (page *WikipediaPage) GetReference(client *Client, lang string) ([]string, error) {
 	if len(page.Reference) > 0 {
 		return page.Reference, nil
 	}
@@ -341,7 +340,7 @@ func (page *WikipediaPage) GetReference(client Client, lang string) ([]string, e
 		List of titles of Wikipedia page links on a page.
 	    **Note:: Only includes articles from namespace 0, meaning no Category, User talk, or other meta-Wikipedia pages.
 */
-func (page *WikipediaPage) GetLink(client Client, lang string) ([]string, error) {
+func (page *WikipediaPage) GetLink(client *Client, lang string) ([]string, error) {
 	if len(page.Link) > 0 {
 		return page.Link, nil
 	}
@@ -364,7 +363,7 @@ func (page *WikipediaPage) GetLink(client Client, lang string) ([]string, error)
 /*
 List of categories of a page.
 */
-func (page *WikipediaPage) GetCategory(client Client, lang string) ([]string, error) {
+func (page *WikipediaPage) GetCategory(client *Client, lang string) ([]string, error) {
 	if len(page.Category) > 0 {
 		return page.Category, nil
 	}
@@ -386,7 +385,7 @@ func (page *WikipediaPage) GetCategory(client Client, lang string) ([]string, er
 /*
 List of section titles from the table of contents on the page.
 */
-func (page *WikipediaPage) GetSectionList(client Client, lang string) ([]string, error) {
+func (page *WikipediaPage) GetSectionList(client *Client, lang string) ([]string, error) {
 	if len(page.Section) > 0 {
 		return page.Section, nil
 	}
@@ -397,20 +396,18 @@ func (page *WikipediaPage) GetSectionList(client Client, lang string) ([]string,
 	if page.Title != "" {
 		args["page"] = page.Title
 	}
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return []string{}, err
 	}
-	if res.Error.Code != "" {
-		return []string{}, errors.New(res.Error.Info)
-	}
+
 	for _, v := range res.Parse["sections"].([]interface{}) {
 		page.Section = append(page.Section, v.(map[string]interface{})["line"].(string))
 	}
 	return page.Section, nil
 }
 
-func (page *WikipediaPage) GetSection(section string, client Client, lang string) (string, error) {
+func (page *WikipediaPage) GetSection(section string, client *Client, lang string) (string, error) {
 	sections, err := page.GetSectionList(client, lang)
 	if err != nil {
 		return "", err
@@ -449,7 +446,7 @@ func (page *WikipediaPage) GetSection(section string, client Client, lang string
 
 	    Confirm that page exists. If it's a disambiguation page, get a list of suggesting
 */
-func MakeWikipediaPage(pageid int, title string, originaltitle string, redirect bool, client Client, lang string) (WikipediaPage, error) {
+func MakeWikipediaPage(pageid int, title string, originaltitle string, redirect bool, client *Client, lang string) (WikipediaPage, error) {
 	page := WikipediaPage{}
 	args := map[string]string{
 		"action":    "query",
@@ -469,7 +466,7 @@ func MakeWikipediaPage(pageid int, title string, originaltitle string, redirect 
 	if originaltitle != "" {
 		page.OriginalTitle = originaltitle
 	}
-	res, err := client.RequestWikiApi(args, lang)
+	res, err := client.DoRequest(args, lang)
 	if err != nil {
 		return page, err
 	}
@@ -515,37 +512,37 @@ func MakeWikipediaPage(pageid int, title string, originaltitle string, redirect 
 	}
 
 	// If the page is a disambiguation page
+	// TODO: Needs more love here to get the disambiguation list of pages in the right way
 	if _, ok := target.PageProps["disambiguation"]; ok {
-		return WikipediaPage{}, errors.New("disambiguation")
-		// args = map[string]string{
-		// 	"action":  "query",
-		// 	"prop":    "revisions",
-		// 	"rvprop":  "content",
-		// 	"rvparse": "",
-		// 	"rvlimit": strconv.Itoa(1),
-		// 	"titles":  page.Title,
-		// }
-		// res, err := client.RequestWikiApi(args, lang)
-		// if err != nil {
-		// 	return page, err
-		// }
+		args = map[string]string{
+			"action":  "query",
+			"prop":    "revisions",
+			"rvprop":  "content",
+			"rvparse": "",
+			"rvlimit": "1",
+			"titles":  page.Title,
+		}
+		res, err := client.DoRequest(args, lang)
+		if err != nil {
+			return page, err
+		}
 
-		// html := res.Query.Page[strconv.Itoa(page.PageID)].Revision[0]["*"].(string)
-		// doc := soup.HTMLParse(html)
-		// links := doc.FindAll("li")
-		// disa := make([]string, 0, 10)
-		// for _, link := range links {
-		// 	li := link.FindAll("a")
-		// 	for _, l := range li {
-		// 		if ref, ok := l.Attrs()["title"]; ok {
-		// 			if len(ref) >= 1 && !slices.Contains(disa, ref) {
-		// 				disa = append(disa, ref)
-		// 			}
-		// 		}
-		// 	}
-		// }
-		// page.Disambiguation = disa
-		// return page, nil
+		html := res.Query.Page[strconv.Itoa(page.PageID)].Revision[0]["*"].(string)
+		doc := soup.HTMLParse(html)
+		links := doc.FindAll("li")
+		disa := make([]string, 0, 10)
+		for _, link := range links {
+			li := link.FindAll("a")
+			for _, l := range li {
+				if ref, ok := l.Attrs()["title"]; ok {
+					if len(ref) >= 1 && !slices.Contains(disa, ref) {
+						disa = append(disa, ref)
+					}
+				}
+			}
+		}
+		page.Disambiguation = disa
+		return page, nil
 	}
 
 	page.URL = target.FullURL

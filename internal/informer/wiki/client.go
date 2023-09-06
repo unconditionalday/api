@@ -11,18 +11,23 @@ import (
 
 type Client struct {
 	userAgent string
-	wikiURL   string
+	URL       string
 	lastCall  time.Time
-	cache     WikiCache
+	cache     *Cache
 }
 
+const (
+	cacheExpiration = 12 * time.Hour
+	maxCacheMemory  = 500
+)
+
 // Create a new WikiClient
-func New() Client {
-	return Client{
-		userAgent: "unconditionalday",
-		wikiURL:   "https://%v.wikipedia.org/w/api.php",
+func New() *Client {
+	return &Client{
+		userAgent: "unconditional.day",
+		URL:       "https://%v.wikipedia.org/w/api.php",
 		lastCall:  time.Now(),
-		cache:     MakeWikiCache(),
+		cache:     MakeWikiCache(cacheExpiration, maxCacheMemory),
 	}
 }
 
@@ -31,11 +36,11 @@ Make a request to the Wikipedia API using the given search parameters.
 
 Returns a RequestResult (You can see the model in the models.go file)
 */
-func (c *Client) RequestWikiApi(args map[string]string, wikiLang string) (RequestResult, error) {
+func (c *Client) DoRequest(args map[string]string, wikiLang string) (RequestResult, error) {
 	const ReqPerSec = 199
 	const ApiGap = time.Second / ReqPerSec
-	
-	url := fmt.Sprintf(c.wikiURL, wikiLang)
+
+	url := fmt.Sprintf(c.URL, wikiLang)
 	// Make new request object
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
