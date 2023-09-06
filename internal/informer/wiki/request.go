@@ -1,11 +1,5 @@
 package wiki
 
-type RequestError struct {
-	Code  string `json:"code"`
-	Info  string `json:"info"`
-	Aster string `json:"*"`
-}
-
 type InnerBasic struct {
 	Aster string `json:"*"`
 }
@@ -74,6 +68,22 @@ type InnerNormalize struct {
 	To   string `json:"to"`
 }
 
+type RequestResult struct {
+	Error         *RequestError          `json:"error"`
+	Warning       map[string]InnerBasic  `json:"warnings"`
+	Batchcomplete string                 `json:"batchcomplete"`
+	Query         *RequestQuery          `json:"query"`
+	Servedby      string                 `json:"servedby"`
+	Continue      map[string]interface{} `json:"continue"`
+	Parse         map[string]interface{} `json:"parse"`
+}
+
+type RequestError struct {
+	Code  string `json:"code"`
+	Info  string `json:"info"`
+	Aster string `json:"*"`
+}
+
 type RequestQuery struct {
 	SearchInfo InnerSearchInfo      `json:"searchinfo"`
 	Normalize  []InnerNormalize     `json:"normalized"`
@@ -83,17 +93,4 @@ type RequestQuery struct {
 	Page       map[string]InnerPage `json:"pages"`
 	Random     []InnerSearch        `json:"random"`
 	Language   []map[string]string  `json:"languages"`
-}
-
-/*
-The result of calling the Wikipedia API
-*/
-type RequestResult struct {
-	Error         *RequestError           `json:"error"`
-	Warning       map[string]InnerBasic  `json:"warnings"`
-	Batchcomplete string                 `json:"batchcomplete"`
-	Query         *RequestQuery           `json:"query"`
-	Servedby      string                 `json:"servedby"`
-	Continue      map[string]interface{} `json:"continue"`
-	Parse         map[string]interface{} `json:"parse"`
 }
