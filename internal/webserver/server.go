@@ -12,17 +12,19 @@ import (
 )
 
 type Server struct {
-	config ServerConfig
+	config Config
 	repo   app.FeedRepository
+	logger *zap.Logger
 	client *echo.Echo
 }
 
-type ServerConfig struct {
-	Port    int
-	Address string
+type Config struct {
+	Port           int
+	Address        string
+	AllowedOrigins []string
 }
 
-func NewServer(config ServerConfig, repo app.FeedRepository) *Server {
+func NewServer(config Config, repo app.FeedRepository, logger *zap.Logger) *Server {
 	return &Server{
 		client: echo.New(),
 		config: config,
@@ -32,22 +34,23 @@ func NewServer(config ServerConfig, repo app.FeedRepository) *Server {
 
 func (s *Server) Start() error {
 	api.RegisterHandlers(s.client, s)
-	logger, _ := zap.NewProduction()
-	s.client.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:    true,
-		LogStatus: true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			logger.Info("request",
-				zap.String("URI", v.URI),
-				zap.Int("status", v.Status),
-			)
+	s.client.Use(
+		middleware.RequestLoggerWithConfig(
+			middleware.RequestLoggerConfig{
+				LogURI:    true,
+				LogStatus: true,
+				LogError:  true,
+				LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+					s.logger.Info("request",
+						zap.String("URI", v.URI),
+						zap.Int("status", v.Status),
+					)
 
-			return nil
-		},
-	}))
+					return nil
+				},
+			}))
 	s.client.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{"*"},
+		AllowOrigins: s.config.AllowedOrigins,
 	}))
 
 	return s.client.Start(fmt.Sprintf("%s:%d", s.config.Address, s.config.Port))

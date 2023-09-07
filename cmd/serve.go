@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	blevex "github.com/unconditionalday/server/internal/repository/bleve"
 	"github.com/unconditionalday/server/internal/webserver"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
+	"go.uber.org/zap"
 )
 
 var (
@@ -33,22 +33,27 @@ func NewServeCommand() *cobra.Command {
 
 			a := cobrax.Flag[string](cmd, "address").(string)
 			p := cobrax.Flag[int](cmd, "port").(int)
+			ao := cobrax.FlagSlice(cmd, "allowed-origins")
 
-			sc := webserver.ServerConfig{
-				Address: a,
-				Port:    p,
+			sc := webserver.Config{
+				Port:           p,
+				Address:        a,
+				AllowedOrigins: ao,
 			}
 
-			return webserver.NewServer(sc, r).Start()
+			l, _ := zap.NewProduction()
+
+			return webserver.NewServer(sc, r, l).Start()
 		},
 	}
-
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix("unconditional")
 
 	cmd.Flags().StringP("address", "a", "localhost", "Server address")
 	cmd.Flags().IntP("port", "p", 8080, "Server port")
 	cmd.Flags().StringP("index", "s", "", "Index path")
+	cmd.Flags().String("allowed-origins", "", "Allowed Origins")
+
+	envPrefix := "UNCONDITIONAL_API"
+	cobrax.BindFlags(cmd, cobrax.InitEnvs(envPrefix), envPrefix)
 
 	return cmd
 }
