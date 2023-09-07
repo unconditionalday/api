@@ -1,12 +1,13 @@
 module github.com/unconditionalday/server
 
-go 1.20
+go 1.21
 
 require (
 	github.com/deepmap/oapi-codegen v1.14.0
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/pflag v1.0.5
 	go.uber.org/zap v1.25.0
 )
 
@@ -94,7 +95,6 @@ require (
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/tdewolff/minify/v2 v2.12.8 // indirect
 	github.com/tdewolff/parse/v2 v2.6.7 // indirect
