@@ -1,12 +1,10 @@
 # PROJECT SETTINGS
 _PROJECT_DIRECTORY = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-_GOLANG_IMAGE = golang:1.19
 _GOARCH = "amd64"
 
 ifeq ("$(shell uname -m)", "arm64")
 	_GOARCH = "arm64"
 endif
-
 
 .PHONY: prepare-ci
 
