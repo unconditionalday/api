@@ -6,9 +6,9 @@ ifeq ("$(shell uname -m)", "arm64")
 	_GOARCH = "arm64"
 endif
 
-.PHONY: prepare-ci
+.PHONY: install-tools
 
-prepare-ci:
+install-tools:
 	@go install gotest.tools/gotestsum@latest
 
 .PHONY: generate

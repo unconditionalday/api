@@ -29,6 +29,7 @@ func NewServer(config Config, repo app.FeedRepository, logger *zap.Logger) *Serv
 		client: echo.New(),
 		config: config,
 		repo:   repo,
+		logger: logger,
 	}
 }
 

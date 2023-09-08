@@ -4,13 +4,15 @@ kill_timeout = 1
 processes = []
 
 [build.args]
-  UNCONDITIONAL_ADDRESS="0.0.0.0"
-  UNCONDITIONAL_PORT="8080"
+  UNCONDITIONAL_API_ADDRESS="0.0.0.0"
+  UNCONDITIONAL_API_PORT="8080"
+  UNCONDITIONAL_API_ALLOWED_ORIGINS="https://unconditional.day,https://www.unconditional.day"
 
 [env]
-  UNCONDITIONAL_ADDRESS="0.0.0.0"
-  UNCONDITIONAL_PORT="8080"
-  
+  UNCONDITIONAL_API_ADDRESS="0.0.0.0"
+  UNCONDITIONAL_API_PORT="8080"
+  UNCONDITIONAL_API_ALLOWED_ORIGINS="https://unconditional.day,https://www.unconditional.day"
+
 [experimental]
   allowed_public_ports = []
   auto_rollback = true
