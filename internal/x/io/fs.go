@@ -11,7 +11,6 @@ func ReadJSON[T any](path string, o T) (T, error) {
 		return o, err
 	}
 
-	// Load the source.
 	err = json.Unmarshal(fs, &o)
 	if err != nil {
 		return o, err
@@ -26,7 +25,6 @@ func WriteJSON[T any](path string, o T) error {
 		return err
 	}
 
-	// Save the source.
 	err = os.WriteFile(path, fs, 0o644)
 	if err != nil {
 		return err
