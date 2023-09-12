@@ -7,6 +7,6 @@ type entry struct {
 
 type Source []entry
 
-type Service interface {
+type SourceService interface {
 	Download(path string) (Source, error)
 }

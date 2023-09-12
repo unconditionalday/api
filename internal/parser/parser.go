@@ -12,7 +12,7 @@ func NewParser() *Parser {
 	return &Parser{}
 }
 
-func (p *Parser) Parse(content string) string {
+func (p Parser) Parse(content string) string {
 	// remove bloated text from the content
 	content = removeBloat(content)
 

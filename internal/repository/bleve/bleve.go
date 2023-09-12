@@ -5,7 +5,6 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
-
 	"github.com/unconditionalday/server/internal/app"
 )
 
@@ -76,6 +75,10 @@ func (b *Bleve) Save(doc app.Feed) error {
 	}
 
 	return nil
+}
+
+func (b *Bleve) Update(doc app.Feed) error {
+	return b.Save(doc)
 }
 
 func (b *Bleve) Delete(doc app.Feed) error {
