@@ -9,9 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	SourceUpdateInterval = 4 * time.Hour
+	FeedsUpdateInterval  = 1 * time.Hour
+)
+
 func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.Container) {
 	srcReleasesChan := make(chan *app.SourceRelease)
-	ticker := time.NewTicker(4 * time.Second)
+	feedsTicker := time.NewTicker(FeedsUpdateInterval)
 
 	go updateSource(srcReleasesChan, source, s, c.GetLogger())
 
@@ -29,7 +34,7 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 				}
 			}
 			c.GetLogger().Debug("Feeds updated")
-		case <-ticker.C:
+		case <-feedsTicker.C:
 			feeds, err := s.FetchFeeds(source.Source)
 			if err != nil {
 				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
@@ -49,7 +54,7 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 func updateSource(sourceChan chan *app.SourceRelease, s *app.SourceRelease, sourceService *service.Source, l *zap.Logger) {
 	for {
 
-		time.Sleep(2 * time.Minute)
+		time.Sleep(SourceUpdateInterval)
 
 		currentVersion := s.Version
 		res, err := sourceService.Update(s)

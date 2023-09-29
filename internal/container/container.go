@@ -1,12 +1,15 @@
 package container
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/client/github"
 	"github.com/unconditionalday/server/internal/parser"
-	"github.com/unconditionalday/server/internal/repository/bleve"
+	bleveRepo "github.com/unconditionalday/server/internal/repository/bleve"
 	"github.com/unconditionalday/server/internal/version"
 	"github.com/unconditionalday/server/internal/webserver"
 	blevex "github.com/unconditionalday/server/internal/x/bleve"
@@ -23,19 +26,22 @@ func NewDefaultParameters() Parameters {
 		SourceRepository:     "source",
 		SourceClientKey:      "secret",
 		FeedIndex:            "feed.index",
+		LogEnv:               "dev",
 	}
 }
 
-func NewParameters(serverAddress, feedIndex, sourceRepository,sourceClientKey string, serverPort int, serverAllowedOrigins []string) Parameters {
+func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
 		ServerAllowedOrigins: serverAllowedOrigins,
 
 		SourceRepository: sourceRepository,
-		SourceClientKey: sourceClientKey,
+		SourceClientKey:  sourceClientKey,
 
 		FeedIndex: feedIndex,
+
+		LogEnv: logEnv,
 	}
 }
 
@@ -45,14 +51,16 @@ type Parameters struct {
 	ServerAllowedOrigins []string
 
 	SourceRepository string
-	SourceClientKey string
+	SourceClientKey  string
 
 	FeedIndex string
+
+	LogEnv string
 }
 
 type Services struct {
 	apiServer      *webserver.Server
-	feedRepository *bleve.FeedRepository
+	feedRepository *bleveRepo.FeedRepository
 	sourceClient   *github.Client
 	httpClient     *netx.HttpClient
 	logger         *zap.Logger
@@ -87,12 +95,19 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 		return c.feedRepository
 	}
 
-	b, err := blevex.New(c.FeedIndex)
+	b, err := blevex.NewIndex(c.FeedIndex, mapping.NewIndexMapping())
 	if err != nil {
-		panic(err)
+		if errors.Is(bleve.ErrorIndexPathExists, err) {
+			b, err = blevex.New(c.FeedIndex)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			panic(err)
+		}
 	}
 
-	c.feedRepository = bleve.NewFeedRepository(b)
+	c.feedRepository = bleveRepo.NewFeedRepository(b)
 
 	return c.feedRepository
 }
@@ -137,6 +152,10 @@ func (c *Container) GetLogger() *zap.Logger {
 	c.logger, err = zap.NewDevelopment()
 	if err != nil {
 		panic(err)
+	}
+
+	if c.LogEnv == "prod" {
+		c.logger, _ = zap.NewProduction()
 	}
 
 	return c.logger
