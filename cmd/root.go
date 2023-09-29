@@ -29,6 +29,7 @@ func NewRootCommand(versions map[string]string) *RootCommand {
 
 	rootCmd.AddCommand(NewServeCommand())
 	rootCmd.AddCommand(NewIndexCmd())
+	rootCmd.AddCommand(NewSourceCommand())
 
 	return rootCmd
 }

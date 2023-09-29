@@ -14,7 +14,9 @@ var (
 	ErrIndexNotProvided            = errors.New("index not provided, please provide it using --index flag")
 	ErrAddressNotProvided          = errors.New("server address not provided, please provide it using --address flag")
 	ErrPortNotProvided             = errors.New("server port not provided, please provide it using --port flag")
+	ErrLogEnvNotProvided           = errors.New("server log-env not provided, please provide it using --log-env flag")
 	ErrSourceRepositoryNotProvided = errors.New("source repo not provided, please provide it using --source-repo flag")
+	ErrSourceClientKeyNotProvided  = errors.New("source client-key not provided, please provide it using --source-client-key flag")
 	ErrAllowedOriginsNotProvided   = errors.New("server allowed origins not provided, please provide it using --allowed-origins flag")
 )
 
@@ -29,6 +31,11 @@ func NewServeCommand() *cobra.Command {
 				return ErrIndexNotProvided
 			}
 
+			l := cobrax.Flag[string](cmd, "log-env").(string)
+			if l == "" {
+				return ErrLogEnvNotProvided
+			}
+
 			s := cobrax.Flag[string](cmd, "source-repo").(string)
 			if s == "" {
 				return ErrSourceRepositoryNotProvided
@@ -36,7 +43,7 @@ func NewServeCommand() *cobra.Command {
 
 			sk := cobrax.Flag[string](cmd, "source-client-key").(string)
 			if s == "" {
-				return ErrSourceRepositoryNotProvided
+				return ErrSourceClientKeyNotProvided
 			}
 
 			a := cobrax.Flag[string](cmd, "address").(string)
@@ -54,7 +61,7 @@ func NewServeCommand() *cobra.Command {
 				return ErrAllowedOriginsNotProvided
 			}
 
-			params := container.NewParameters(a, i, s, sk, p, ao,)
+			params := container.NewParameters(a, i, s, sk, l, p, ao)
 			c, _ := container.NewContainer(params)
 
 			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
@@ -76,7 +83,8 @@ func NewServeCommand() *cobra.Command {
 	cmd.Flags().String("allowed-origins", "", "Allowed Origins")
 	cmd.Flags().String("source-repo", "", "Source Repository")
 	cmd.Flags().String("source-client-key", "", "Source Client Key")
-	
+	cmd.Flags().StringP("log-env", "l", "", "Log Env")
+
 	envPrefix := "UNCONDITIONAL_API"
 	cobrax.BindFlags(cmd, cobrax.InitEnvs(envPrefix), envPrefix)
 
