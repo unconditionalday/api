@@ -24,21 +24,21 @@ require (
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
-	github.com/blevesearch/bleve_index_api v1.0.5 // indirect
-	github.com/blevesearch/geo v0.1.17 // indirect
+	github.com/blevesearch/bleve_index_api v1.0.6 // indirect
+	github.com/blevesearch/geo v0.1.18 // indirect
 	github.com/blevesearch/go-porterstemmer v1.0.3 // indirect
 	github.com/blevesearch/gtreap v0.1.1 // indirect
 	github.com/blevesearch/mmap-go v1.0.4 // indirect
-	github.com/blevesearch/scorch_segment_api/v2 v2.1.5 // indirect
+	github.com/blevesearch/scorch_segment_api/v2 v2.1.6 // indirect
 	github.com/blevesearch/segment v0.9.1 // indirect
 	github.com/blevesearch/snowballstem v0.9.0 // indirect
 	github.com/blevesearch/upsidedown_store_api v1.0.2 // indirect
 	github.com/blevesearch/vellum v1.0.10 // indirect
-	github.com/blevesearch/zapx/v11 v11.3.9 // indirect
-	github.com/blevesearch/zapx/v12 v12.3.9 // indirect
-	github.com/blevesearch/zapx/v13 v13.3.9 // indirect
-	github.com/blevesearch/zapx/v14 v14.3.9 // indirect
-	github.com/blevesearch/zapx/v15 v15.3.12 // indirect
+	github.com/blevesearch/zapx/v11 v11.3.10 // indirect
+	github.com/blevesearch/zapx/v12 v12.3.10 // indirect
+	github.com/blevesearch/zapx/v13 v13.3.10 // indirect
+	github.com/blevesearch/zapx/v14 v14.3.10 // indirect
+	github.com/blevesearch/zapx/v15 v15.3.13 // indirect
 	github.com/bytedance/sonic v1.10.0-rc3 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
@@ -119,7 +119,7 @@ require (
 
 require (
 	github.com/SlyMarbo/rss v1.0.5
-	github.com/blevesearch/bleve/v2 v2.3.9
+	github.com/blevesearch/bleve/v2 v2.3.10
 	github.com/loadsmart/calver-go v0.0.0-20230323142215-56cf73a68e8a
 	github.com/microcosm-cc/bluemonday v1.0.25
 	github.com/spf13/cobra v1.7.0
