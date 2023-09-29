@@ -5,9 +5,7 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 )
 
-type Bleve struct {
-	
-}
+type Bleve struct{}
 
 func New(path string) (bleve.Index, error) {
 	b, err := bleve.Open(path)

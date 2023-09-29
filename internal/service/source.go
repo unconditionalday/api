@@ -1,13 +1,13 @@
 package service
 
 import (
+	"github.com/SlyMarbo/rss"
+	"go.uber.org/zap"
 	"slices"
 
-	"github.com/SlyMarbo/rss"
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/parser"
 	"github.com/unconditionalday/server/internal/version"
-	"go.uber.org/zap"
 )
 
 type Source struct {

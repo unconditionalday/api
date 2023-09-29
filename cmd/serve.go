@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/spf13/cobra"
+
 	"github.com/unconditionalday/server/internal/cmd/serve"
 	"github.com/unconditionalday/server/internal/container"
 	"github.com/unconditionalday/server/internal/service"
