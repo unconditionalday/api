@@ -1,11 +1,16 @@
 package container
 
 import (
+	"net/http"
+
 	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/client/github"
 	"github.com/unconditionalday/server/internal/parser"
 	"github.com/unconditionalday/server/internal/repository/bleve"
-	"github.com/unconditionalday/server/internal/service"
+	"github.com/unconditionalday/server/internal/version"
 	"github.com/unconditionalday/server/internal/webserver"
+	blevex "github.com/unconditionalday/server/internal/x/bleve"
+	calverx "github.com/unconditionalday/server/internal/x/calver"
 	netx "github.com/unconditionalday/server/internal/x/net"
 	"go.uber.org/zap"
 )
@@ -15,17 +20,22 @@ func NewDefaultParameters() Parameters {
 		ServerAddress:        "0.0.0.0",
 		ServerPort:           8080,
 		ServerAllowedOrigins: []string{"*"},
-
-		Index: "test.index",
+		SourceRepository:     "source",
+		SourceClientKey:      "secret",
+		FeedIndex:            "feed.index",
 	}
 }
 
-func NewParameters(serverAddress, index string, serverPort int, serverAllowedOrigins []string) Parameters {
+func NewParameters(serverAddress, feedIndex, sourceRepository,sourceClientKey string, serverPort int, serverAllowedOrigins []string) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
 		ServerAllowedOrigins: serverAllowedOrigins,
-		Index:                index,
+
+		SourceRepository: sourceRepository,
+		SourceClientKey: sourceClientKey,
+
+		FeedIndex: feedIndex,
 	}
 }
 
@@ -34,16 +44,20 @@ type Parameters struct {
 	ServerPort           int
 	ServerAllowedOrigins []string
 
-	Index string
+	SourceRepository string
+	SourceClientKey string
+
+	FeedIndex string
 }
 
 type Services struct {
 	apiServer      *webserver.Server
-	feedRepository *bleve.Bleve
-	sourceService  *service.Source
+	feedRepository *bleve.FeedRepository
+	sourceClient   *github.Client
 	httpClient     *netx.HttpClient
 	logger         *zap.Logger
 	parser         *parser.Parser
+	versioning     *calverx.CalVer
 }
 
 func NewContainer(p Parameters) (*Container, error) {
@@ -73,26 +87,34 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 		return c.feedRepository
 	}
 
-	b, err := bleve.NewBleve(c.Index)
+	b, err := blevex.New(c.FeedIndex)
 	if err != nil {
 		panic(err)
 	}
 
-	c.feedRepository = b
+	c.feedRepository = bleve.NewFeedRepository(b)
 
 	return c.feedRepository
 }
 
-func (c *Container) GetSourceService() app.SourceService {
-	if c.sourceService != nil {
-		return c.sourceService
+func (c *Container) GetSourceClient() app.SourceClient {
+	if c.sourceClient != nil {
+		return c.sourceClient
 	}
 
-	client := c.GetHTTPClient()
+	c.sourceClient = github.New(c.SourceRepository, "unconditionalday", c.SourceClientKey, http.DefaultClient)
 
-	c.sourceService = service.NewSource(client)
+	return c.sourceClient
+}
 
-	return c.sourceService
+func (c *Container) GetVersioning() version.Versioning {
+	if c.versioning != nil {
+		return c.versioning
+	}
+
+	c.versioning = calverx.New()
+
+	return c.versioning
 }
 
 func (c *Container) GetHTTPClient() netx.Client {
@@ -112,7 +134,7 @@ func (c *Container) GetLogger() *zap.Logger {
 	}
 
 	var err error
-	c.logger, err = zap.NewProduction()
+	c.logger, err = zap.NewDevelopment()
 	if err != nil {
 		panic(err)
 	}
@@ -120,13 +142,12 @@ func (c *Container) GetLogger() *zap.Logger {
 	return c.logger
 }
 
-// TODO: Needs to export a Parser interface
 func (c *Container) GetParser() *parser.Parser {
 	if c.parser != nil {
 		return c.parser
 	}
 
-	c.parser = parser.NewParser()
+	c.parser = parser.New()
 
 	return c.parser
 }

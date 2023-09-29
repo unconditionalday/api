@@ -53,7 +53,7 @@ func TestParse(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			p := parser.NewParser()
+			p := parser.New()
 			actual := p.Parse(tc.input)
 
 			assert.Equal(t, tc.expected, actual)

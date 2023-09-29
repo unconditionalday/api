@@ -2,24 +2,20 @@ package cmd
 
 import (
 	"errors"
-	"time"
 
-	"github.com/SlyMarbo/rss"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/cmd/serve"
 	"github.com/unconditionalday/server/internal/container"
-	"github.com/unconditionalday/server/internal/parser"
+	"github.com/unconditionalday/server/internal/service"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
-	"go.uber.org/zap"
 )
 
 var (
-	ErrIndexNotFound             = errors.New("index not found, please create it first using source command")
-	ErrIndexNotProvided          = errors.New("index not provided, please provide it using --index flag")
-	ErrAddressNotProvided        = errors.New("server address not provided, please provide it using --address flag")
-	ErrPortNotProvided           = errors.New("server port not provided, please provide it using --port flag")
-	ErrAllowedOriginsNotProvided = errors.New("server allowed origins not provided, please provide it using --allowed-origins flag")
+	ErrIndexNotProvided            = errors.New("index not provided, please provide it using --index flag")
+	ErrAddressNotProvided          = errors.New("server address not provided, please provide it using --address flag")
+	ErrPortNotProvided             = errors.New("server port not provided, please provide it using --port flag")
+	ErrSourceRepositoryNotProvided = errors.New("source repo not provided, please provide it using --source-repo flag")
+	ErrAllowedOriginsNotProvided   = errors.New("server allowed origins not provided, please provide it using --allowed-origins flag")
 )
 
 func NewServeCommand() *cobra.Command {
@@ -31,6 +27,16 @@ func NewServeCommand() *cobra.Command {
 			i := cobrax.Flag[string](cmd, "index").(string)
 			if i == "" {
 				return ErrIndexNotProvided
+			}
+
+			s := cobrax.Flag[string](cmd, "source-repo").(string)
+			if s == "" {
+				return ErrSourceRepositoryNotProvided
+			}
+
+			sk := cobrax.Flag[string](cmd, "source-client-key").(string)
+			if s == "" {
+				return ErrSourceRepositoryNotProvided
 			}
 
 			a := cobrax.Flag[string](cmd, "address").(string)
@@ -48,28 +54,17 @@ func NewServeCommand() *cobra.Command {
 				return ErrAllowedOriginsNotProvided
 			}
 
-			params := container.NewParameters(a, i, p, ao)
+			params := container.NewParameters(a, i, s, sk, p, ao,)
 			c, _ := container.NewContainer(params)
 
-			sourceChan := make(chan app.Source)
+			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
 
-			go func(sourceChan chan app.Source, s app.SourceService, l *zap.Logger) {
-				for {
-					updateSource(sourceChan, c.GetSourceService(), l)
-					time.Sleep(2 * time.Minute)
-				}
-			}(sourceChan, c.GetSourceService(), c.GetLogger())
+			source, err := sourceService.Download()
+			if err != nil {
+				return err
+			}
 
-			go func(sourceChan chan app.Source, index app.FeedRepository, l *zap.Logger, pa *parser.Parser) {
-				for {
-					select {
-					case s := <-sourceChan:
-						feeds := fetchNewFeeds(s, l, pa)
-						updateIndex(index, feeds, l)
-					}
-				}
-
-			}(sourceChan, c.GetFeedRepository(), c.GetLogger(), c.GetParser())
+			go serve.UpdateResources(&source, sourceService, c)
 
 			return c.GetAPIServer().Start()
 		},
@@ -79,63 +74,11 @@ func NewServeCommand() *cobra.Command {
 	cmd.Flags().IntP("port", "p", 8080, "Server port")
 	cmd.Flags().StringP("index", "s", "", "Index path")
 	cmd.Flags().String("allowed-origins", "", "Allowed Origins")
-
+	cmd.Flags().String("source-repo", "", "Source Repository")
+	cmd.Flags().String("source-client-key", "", "Source Client Key")
+	
 	envPrefix := "UNCONDITIONAL_API"
 	cobrax.BindFlags(cmd, cobrax.InitEnvs(envPrefix), envPrefix)
 
 	return cmd
-}
-
-func updateSource(sourceChan chan app.Source, service app.SourceService, l *zap.Logger) {
-	s, err := service.Download("https://raw.githubusercontent.com/unconditionalday/source/main/source.json")
-	if err != nil {
-		return
-	}
-
-	sourceChan <- s
-
-	l.Info("Update Source")
-}
-
-func updateIndex(index app.FeedRepository, feeds []app.Feed, l *zap.Logger) {
-	for _, f := range feeds {
-		index.Update(f)
-	}
-
-	l.Info("Update Index")
-}
-
-func fetchNewFeeds(source app.Source, l *zap.Logger, parser *parser.Parser) []app.Feed {
-	feeds := make([]*rss.Feed, 0)
-	for _, s := range source {
-		feed, err := rss.Fetch(s.URL)
-		if err != nil {
-			logrus.Warnf("error fetching feed %s: %s", s.URL, err)
-			continue
-		}
-
-		feeds = append(feeds, feed)
-	}
-
-	items := make([]app.Feed, 0)
-	for _, feed := range feeds {
-		for _, item := range feed.Items {
-			f := app.Feed{
-				Title:    parser.Parse(item.Title),
-				Link:     item.Link,
-				Source:   feed.Title,
-				Language: feed.Language,
-				Image: &app.Image{
-					Title: feed.Image.Title,
-					URL:   feed.Image.URL,
-				},
-				Summary: parser.Parse(item.Summary),
-				Date:    item.Date,
-			}
-
-			items = append(items, f)
-		}
-	}
-
-	return items
 }

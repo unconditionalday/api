@@ -7,6 +7,12 @@ type entry struct {
 
 type Source []entry
 
-type SourceService interface {
-	Download(path string) (Source, error)
+type SourceRelease struct {
+	Source  Source
+	Version string
+}
+
+type SourceClient interface {
+	GetLatestVersion() (string, error)
+	Download(version string) (SourceRelease, error)
 }

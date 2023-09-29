@@ -4,38 +4,25 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/unconditionalday/server/internal/app"
 )
 
-type Bleve struct {
+type FeedRepository struct {
 	client bleve.Index
 }
 
-func NewBleve(path string) (*Bleve, error) {
-	b, err := bleve.Open(path)
-	if err != nil {
-		return nil, err
+func NewFeedRepository(client bleve.Index) *FeedRepository {
+	return &FeedRepository{
+		client: client,
 	}
-
-	return &Bleve{client: b}, nil
 }
 
-func NewBleveIndex(path string, mapping mapping.IndexMapping) (*Bleve, error) {
-	b, err := bleve.New(path, mapping)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Bleve{client: b}, nil
-}
-
-func (b *Bleve) Find(query string) ([]app.Feed, error) {
+func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
 	q := bleve.NewQueryStringQuery(query)
 	searchRequest := bleve.NewSearchRequest(q)
 	// We need to say to bleve to return all fields of the document
 	searchRequest.Fields = []string{"*"}
-	searchResult, err := b.client.Search(searchRequest)
+	searchResult, err := f.client.Search(searchRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -69,28 +56,26 @@ func (b *Bleve) Find(query string) ([]app.Feed, error) {
 	return feeds, nil
 }
 
-func (b *Bleve) Save(doc app.Feed) error {
-	if err := b.client.Index(doc.Link, doc); err != nil {
+func (f *FeedRepository) Save(doc app.Feed) error {
+	if err := f.client.Index(doc.Link, doc); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (b *Bleve) Update(doc app.Feed) error {
+func (b *FeedRepository) Update(doc app.Feed) error {
 	return b.Save(doc)
 }
 
-func (b *Bleve) Delete(doc app.Feed) error {
-	if err := b.client.Delete(doc.Link); err != nil {
-		return err
-	}
+func (b *FeedRepository) Count() uint64 {
+	c, _ := b.client.DocCount()
 
-	return nil
+	return c
 }
 
-func (b *Bleve) Close() error {
-	if err := b.client.Close(); err != nil {
+func (f *FeedRepository) Delete(doc app.Feed) error {
+	if err := f.client.Delete(doc.Link); err != nil {
 		return err
 	}
 
