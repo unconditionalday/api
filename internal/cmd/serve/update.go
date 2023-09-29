@@ -3,10 +3,11 @@ package serve
 import (
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/container"
 	"github.com/unconditionalday/server/internal/service"
-	"go.uber.org/zap"
 )
 
 var (

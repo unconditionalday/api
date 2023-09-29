@@ -23,12 +23,12 @@ generate:
 format: fmt fumpt imports gci
 
 fmt:
-	@find . -name "*.go" -type f -not -path '*/vendor/*' \
+	@find . -name "*.go" -type f -not -path '*/api/*' \
 	| sed 's/^\.\///g' \
 	| xargs -I {} sh -c 'echo "formatting {}.." && gofmt -w -s {}'
 
 fumpt:
-	@find . -name "*.go" -type f -not -path '*/vendor/*' \
+	@find . -name "*.go" -type f -not -path '*/api/*' \
 	| sed 's/^\.\///g' \
 	| xargs -I {} sh -c 'echo "formatting {}.." && gofumpt -w -extra {}'
 
@@ -38,7 +38,7 @@ imports:
 	@goimports -v -w -e -local github.com/unconditionalday internal/
 
 gci:
-	@find . -name "*.go" -type f -not -path '*/vendor/*' \
+	@find . -name "*.go" -type f -not -path '*/api/*' \
 	| sed 's/^\.\///g' \
 	| xargs -I {} sh -c 'echo "formatting imports for {}.." && \
 	gci write --skip-generated -s standard,default,"prefix(github.com/unconditionalday)" {}'

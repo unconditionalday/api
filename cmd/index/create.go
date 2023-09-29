@@ -4,12 +4,13 @@ import (
 	"errors"
 
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/container"
 	"github.com/unconditionalday/server/internal/service"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
 	iox "github.com/unconditionalday/server/internal/x/io"
-	"go.uber.org/zap"
 )
 
 var (

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/labstack/gommon/log"
+
 	"github.com/unconditionalday/server/internal/client/github"
 )
 

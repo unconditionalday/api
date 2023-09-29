@@ -6,6 +6,8 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
+	"go.uber.org/zap"
+
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/client/github"
 	"github.com/unconditionalday/server/internal/parser"
@@ -15,7 +17,6 @@ import (
 	blevex "github.com/unconditionalday/server/internal/x/bleve"
 	calverx "github.com/unconditionalday/server/internal/x/calver"
 	netx "github.com/unconditionalday/server/internal/x/net"
-	"go.uber.org/zap"
 )
 
 func NewDefaultParameters() Parameters {

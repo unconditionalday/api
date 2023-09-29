@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve/v2/mapping"
+
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/repository/bleve"
 	blevex "github.com/unconditionalday/server/internal/x/bleve"
@@ -102,7 +103,6 @@ func TestFind(t *testing.T) {
 			if found[0].Title != tc.document.Title {
 				t.Errorf("expected document to be found")
 			}
-
 		})
 	}
 }

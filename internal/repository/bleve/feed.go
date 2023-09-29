@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve/v2"
+
 	"github.com/unconditionalday/server/internal/app"
 )
 
