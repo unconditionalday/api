@@ -6,6 +6,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.15.0
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/labstack/echo/v4 v4.11.1
+	github.com/labstack/gommon v0.4.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/pflag v1.0.5
 	go.uber.org/zap v1.26.0
@@ -75,7 +76,6 @@ require (
 	github.com/kataras/tunnel v0.0.4 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
-	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailgun/raymond/v2 v2.0.48 // indirect
@@ -120,6 +120,7 @@ require (
 require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve/v2 v2.3.9
+	github.com/loadsmart/calver-go v0.0.0-20230323142215-56cf73a68e8a
 	github.com/microcosm-cc/bluemonday v1.0.25
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0

@@ -1,21 +1,12 @@
 package index
 
 import (
-	"errors"
-
-	"github.com/SlyMarbo/rss"
-	"github.com/blevesearch/bleve/v2"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	"github.com/unconditionalday/server/internal/app"
-	"github.com/unconditionalday/server/internal/parser"
-	blevex "github.com/unconditionalday/server/internal/repository/bleve"
+	"github.com/unconditionalday/server/internal/container"
+	"github.com/unconditionalday/server/internal/service"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
-	iox "github.com/unconditionalday/server/internal/x/io"
+	"go.uber.org/zap"
 )
-
-var ErrSourceNotFound = errors.New("source not found, please download it first using source command")
 
 func NewCreateCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -23,66 +14,50 @@ func NewCreateCommand() *cobra.Command {
 		Short: "Creates the index",
 		Long:  `Creates the index`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			sp := cobrax.Flag[string](cmd, "source").(string)
+			i := cobrax.Flag[string](cmd, "name").(string)
+			if i == "" {
+				return ErrIndexNotProvided
+			}
 
-			source, err := iox.ReadJSON(sp, app.Source{})
+			s := cobrax.Flag[int](cmd, "source-repo").(string)
+			if s == "" {
+				return ErrSourceRepositoryNotProvided
+			}
+
+			params := container.NewDefaultParameters()
+			params.FeedIndex = i
+			params.SourceRepository = s
+
+			c, _ := container.NewContainer(params)
+
+			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
+
+			source, err := sourceService.Download()
 			if err != nil {
 				return err
 			}
 
-			in := cobrax.Flag[string](cmd, "name").(string)
-			b, err := blevex.NewBleveIndex(in, bleve.NewIndexMapping())
+			feeds, err := sourceService.FetchFeeds(source.Source)
 			if err != nil {
-				return err
+				c.GetLogger().Error("Can't fetch feeds", zap.Error(err))
 			}
 
-			feeds := make([]*rss.Feed, 0)
-			for _, s := range source {
-				feed, err := rss.Fetch(s.URL)
+			for _, f := range feeds {
+				err := c.GetFeedRepository().Save(f)
 				if err != nil {
-					logrus.Warnf("error fetching feed %s: %s", s.URL, err)
+					c.GetLogger().Error("Can't save feed", zap.String("Feed", f.Link), zap.Error(err))
 					continue
 				}
-
-				feeds = append(feeds, feed)
 			}
 
-			p := parser.NewParser()
-
-			for _, feed := range feeds {
-				for _, item := range feed.Items {
-					f := app.Feed{
-						Title:    p.Parse(item.Title),
-						Link:     item.Link,
-						Source:   feed.Title,
-						Language: feed.Language,
-						Image: &app.Image{
-							Title: feed.Image.Title,
-							URL:   feed.Image.URL,
-						},
-						Summary: p.Parse(item.Summary),
-						Date:    item.Date,
-					}
-
-					if !f.IsValid() {
-						logrus.Warn("invalid feed: ", f)
-						continue
-					}
-
-					if err := b.Save(f); err != nil {
-						return err
-					}
-				}
-			}
-
-			logrus.Info("Index created: ", in)
-			logrus.Info("Documents indexed: ", len(feeds))
+			c.GetLogger().Info("Index created: ", zap.String("Name", i))
+			c.GetLogger().Info("Documents indexed: ", zap.Uint64("Count", c.GetFeedRepository().Count()))
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringP("source", "s", "", "Source path")
+	cmd.Flags().StringP("source-repo", "s", "", "Source Repository URL")
 	cmd.Flags().StringP("name", "n", "", "Index Name")
 
 	return cmd

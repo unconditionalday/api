@@ -1,6 +1,8 @@
 package app
 
-import "time"
+import (
+	"time"
+)
 
 type FeedRepository interface {
 	// Search returns the results of a search query.
@@ -9,10 +11,10 @@ type FeedRepository interface {
 	Save(doc Feed) error
 	// Update a document in index.
 	Update(doc Feed) error
+	// Count the number of documents indexed.
+	Count() uint64
 	// Delete deletes a document.
 	Delete(doc Feed) error
-	// Close closes the database.
-	Close() error
 }
 
 type Feed struct {

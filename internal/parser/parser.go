@@ -8,7 +8,7 @@ import (
 
 type Parser struct{}
 
-func NewParser() *Parser {
+func New() *Parser {
 	return &Parser{}
 }
 
