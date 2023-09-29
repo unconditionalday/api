@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+env:
+  UNCONDITIONAL_API_SOURCE_CLIENT_KEY: ${{ secrets.UNCONDITIONAL_API_SOURCE_CLIENT_KEY }}
+  
 jobs:
   build:
     runs-on: ubuntu-latest
