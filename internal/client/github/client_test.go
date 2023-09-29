@@ -12,11 +12,11 @@ import (
 
 func TestGetLatestVersion(t *testing.T) {
 	key := os.Getenv("UNCONDITIONAL_API_SOURCE_CLIENT_KEY")
-	fakeClient := github.New("source", "unconditionalday", key, http.DefaultClient)
+	c := github.New("source", "unconditionalday", key, http.DefaultClient)
 
-	version, err := fakeClient.GetLatestVersion()
+	version, err := c.GetLatestVersion()
 	if err != nil {
-		t.Errorf("Errore durante il recupero della versione più recente: %v", err)
+		t.Errorf("Fail: %v", err)
 	}
 
 	log.Info(version)
