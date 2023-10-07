@@ -7,14 +7,14 @@ import (
 )
 
 var (
-	releaseVersion   string
-	gitCommit string
+	releaseVersion string
+	gitCommit      string
 )
 
 func main() {
 	v := map[string]string{
-		"releaseVersion":   "unknown",
-		"gitCommit": "unknown",
+		"releaseVersion": "unknown",
+		"gitCommit":      "unknown",
 	}
 
 	if releaseVersion != "" {
