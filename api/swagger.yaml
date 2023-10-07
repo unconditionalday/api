@@ -2,12 +2,12 @@ openapi: 3.0.2
 x-stoplight:
   id: zo1541bc64oxo
 info:
-  title: Isolated Think - Source API
-  version: "1.0"
+  title: Unconditional
+  version: '1.0'
 servers:
-  - url: "https://source.isolatedthink.test/v1"
-  - url: "http://localhost:8080"
-  - url: "127.0.0.1:8080"
+  - url: 'https://api.unconditional.day/v1'
+  - url: 'http://localhost:8080'
+  - url: '127.0.0.1:8080'
 paths:
   "/v1/search/feed/{query}":
     get:
