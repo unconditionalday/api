@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -9,13 +10,16 @@ import (
 
 	api "github.com/unconditionalday/server/api"
 	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/version"
 )
 
 type Server struct {
-	config Config
-	repo   app.FeedRepository
-	logger *zap.Logger
-	client *echo.Echo
+	config       Config
+	feedRepo     app.FeedRepository
+	source       *app.SourceRelease
+	buildVersion version.Build
+	logger       *zap.Logger
+	client       *echo.Echo
 }
 
 type Config struct {
@@ -24,12 +28,14 @@ type Config struct {
 	AllowedOrigins []string
 }
 
-func NewServer(config Config, repo app.FeedRepository, logger *zap.Logger) *Server {
+func NewServer(config Config, repo app.FeedRepository, source *app.SourceRelease, version version.Build, logger *zap.Logger) *Server {
 	return &Server{
-		client: echo.New(),
-		config: config,
-		repo:   repo,
-		logger: logger,
+		config:       config,
+		feedRepo:     repo,
+		source:       source,
+		buildVersion: version,
+		logger:       logger,
+		client:       echo.New(),
 	}
 }
 
@@ -59,14 +65,14 @@ func (s *Server) Start() error {
 
 // (GET /v1/search/feed/{query})
 func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string) error {
-	feeds, err := s.repo.Find(query)
+	feeds, err := s.feedRepo.Find(query)
 	if err != nil {
 		e := api.Error{
-			Code:    500,
+			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
 		}
 
-		return ctx.JSON(500, e)
+		return ctx.JSON(http.StatusInternalServerError, e)
 	}
 
 	fi := make([]api.FeedItem, len(feeds))
@@ -88,5 +94,20 @@ func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string) error {
 		}
 	}
 
-	return ctx.JSON(200, fi)
+	return ctx.JSON(http.StatusOK, fi)
+}
+
+func (s *Server) GetV1Version(ctx echo.Context) error {
+	v := api.ServerVersion{
+		Build: api.ServerBuildVersion{
+			Version: s.buildVersion.Version,
+			Commit:  s.buildVersion.Commit,
+		},
+		Source: api.SourceReleaseVersion{
+			Version:       s.source.Version,
+			LastUpdatedAt: s.source.LastUpdateAt,
+		},
+	}
+
+	return ctx.JSON(http.StatusOK, v)
 }

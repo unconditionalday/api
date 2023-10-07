@@ -50,12 +50,12 @@ func NewDownloadCmd() *cobra.Command {
 				c.GetVersioning(),
 				c.GetLogger())
 
-			sourceRelease, err := sourceService.Download()
+			sourceRelease, err := sourceService.Fetch()
 			if err != nil {
 				return err
 			}
 
-			if err := iox.WriteJSON(sp, sourceRelease.Source); err != nil {
+			if err := iox.WriteJSON(sp, sourceRelease.Data); err != nil {
 				return err
 			}
 

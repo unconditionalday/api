@@ -1,9 +1,10 @@
 package service
 
 import (
+	"slices"
+
 	"github.com/SlyMarbo/rss"
 	"go.uber.org/zap"
-	"slices"
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/parser"
@@ -15,6 +16,7 @@ type Source struct {
 	parser  *parser.Parser
 	logger  *zap.Logger
 	version version.Versioning
+	current *app.SourceRelease
 }
 
 func NewSource(client app.SourceClient, parser *parser.Parser, versioning version.Versioning, logger *zap.Logger) *Source {
@@ -26,10 +28,17 @@ func NewSource(client app.SourceClient, parser *parser.Parser, versioning versio
 	}
 }
 
-func (s *Source) Download() (app.SourceRelease, error) {
+func (s *Source) Fetch() (app.SourceRelease, error) {
 	version, err := s.client.GetLatestVersion()
 	if err != nil {
 		return app.SourceRelease{}, err
+	}
+
+	if s.current != nil {
+		res, err := s.version.Lower(s.current.Version, version)
+		if !res && err == nil {
+			return *s.current, nil
+		}
 	}
 
 	source, err := s.client.Download(version)
@@ -37,11 +46,17 @@ func (s *Source) Download() (app.SourceRelease, error) {
 		return app.SourceRelease{}, err
 	}
 
-	return source, nil
+	s.current = &app.SourceRelease{
+		Data:         slices.Clone(source.Data),
+		Version:      source.Version,
+		LastUpdateAt: source.LastUpdateAt,
+	}
+
+	return *s.current, nil
 }
 
 func (s *Source) Update(src *app.SourceRelease) (bool, error) {
-	release, err := s.Download()
+	release, err := s.Fetch()
 	if err != nil {
 		return false, err
 	}
@@ -56,7 +71,7 @@ func (s *Source) Update(src *app.SourceRelease) (bool, error) {
 	}
 
 	src.Version = release.Version
-	src.Source = slices.Clone(release.Source)
+	src.Data = slices.Clone(release.Data)
 
 	return true, nil
 }

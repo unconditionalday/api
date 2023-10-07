@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/unconditionalday/server/internal/app"
 )
@@ -92,8 +93,9 @@ func (c *Client) Download(version string) (app.SourceRelease, error) {
 	}
 
 	return app.SourceRelease{
-		Source:  sourceJson,
-		Version: release.TagName,
+		Data:         sourceJson,
+		Version:      release.TagName,
+		LastUpdateAt: time.Now().String(),
 	}, nil
 }
 

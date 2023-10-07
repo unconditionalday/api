@@ -24,7 +24,7 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 	for {
 		select {
 		case newSource := <-srcReleasesChan:
-			feeds, err := s.FetchFeeds(newSource.Source)
+			feeds, err := s.FetchFeeds(newSource.Data)
 			if err != nil {
 				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
 			}
@@ -36,7 +36,7 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 			}
 			c.GetLogger().Debug("Feeds updated")
 		case <-feedsTicker.C:
-			feeds, err := s.FetchFeeds(source.Source)
+			feeds, err := s.FetchFeeds(source.Data)
 			if err != nil {
 				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
 			}

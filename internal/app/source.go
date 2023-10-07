@@ -8,8 +8,9 @@ type entry struct {
 type Source []entry
 
 type SourceRelease struct {
-	Source  Source
-	Version string
+	Data         Source
+	Version      string
+	LastUpdateAt string
 }
 
 type SourceClient interface {

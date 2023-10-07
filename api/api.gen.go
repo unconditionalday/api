@@ -42,11 +42,38 @@ type FeedItem struct {
 	Title    string     `json:"title"`
 }
 
+// ServerBuildVersion defines model for ServerBuildVersion.
+type ServerBuildVersion struct {
+	Commit  string `json:"commit"`
+	Version string `json:"version"`
+}
+
+// ServerVersion defines model for ServerVersion.
+type ServerVersion struct {
+	Build  ServerBuildVersion   `json:"build"`
+	Source SourceReleaseVersion `json:"source"`
+}
+
+// SourceReleaseVersion defines model for SourceReleaseVersion.
+type SourceReleaseVersion struct {
+	LastUpdatedAt string `json:"lastUpdatedAt"`
+	Version       string `json:"version"`
+}
+
+// GetV1VersionJSONBody defines parameters for GetV1Version.
+type GetV1VersionJSONBody map[string]interface{}
+
+// GetV1VersionJSONRequestBody defines body for GetV1Version for application/json ContentType.
+type GetV1VersionJSONRequestBody GetV1VersionJSONBody
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /v1/search/feed/{query})
 	GetV1SearchFeedQuery(ctx echo.Context, query string) error
+	// Your GET endpoint
+	// (GET /v1/version)
+	GetV1Version(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -67,6 +94,15 @@ func (w *ServerInterfaceWrapper) GetV1SearchFeedQuery(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.GetV1SearchFeedQuery(ctx, query)
+	return err
+}
+
+// GetV1Version converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1Version(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetV1Version(ctx)
 	return err
 }
 
@@ -99,21 +135,28 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/v1/search/feed/:query", wrapper.GetV1SearchFeedQuery)
+	router.GET(baseURL+"/v1/version", wrapper.GetV1Version)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/5RUzW7bPBB8FWG/78iIUoqiAW89tIXRQ1uk6CXIgZXWFhPxJ8uVAcPQuxekFFutlf6c",
-	"RHCHM8Phro7QeBu8Q8cR1BFi06HVefmOyFNaBPIBiQ3m7ca3mL58CAgKjGPcIcEowGKMercsRibjdjCO",
-	"AgifBkPYgro7AcVEdi+e8f77AzacuN4jths7s/1sgA33ayICBur/LJ5AYiZ5UZnRXgq3mrPu1pPVDCpv",
-	"XLGx6SYXZsyz+/8Jt6DgP3lOWs4xy/M1RwG9drthPUABvXGPq4XoB2rWz8TBWk2H1dpLKf6S1gQ7U81G",
-	"TrIL12IK6DLTxGnc1i8eDzbR95qxLb52xj0WV8Vt5iveft6AgD1SNN6Bgrqsklsf0OlgQMGrsiqvQUDQ",
-	"3OVXkftaRtTUdHKL2Mrj04B0GFNph5w+6Q01G+82LSj4gPytvs0HUvpfEjrzkbbISBHU3RFMEk8aIMBp",
-	"myw/zchzPEwDinlk1qK8T+AYvItTA11X1TRBjtFlazqE3jTZnHyI6cbHBZ9htPGvWij163gKXhPpw5R7",
-	"i7EhE3hK89PHhHr9jzZ+pz79JFakNo6RnO6LW6Q9UnECJmjMe1PSeWihYw5RSTm1VWnm9uDUHSVjZLmv",
-	"YRRLuJKy943uOx9Z3VQ31aJeX78pq7Iq67lwP/4IAAD//8bBzMHpBAAA",
+	"H4sIAAAAAAAC/6RWXW/iOBT9K+juPqYkoVBo3mak2RHah/2Y2ZFWoz6Y5EIMjm3smwyhyn9fOUlJWkJL",
+	"d56K4ut7js85vu4jxCrTSqIkC9Ej2DjFjNU/PxmjjPuhjdJoiGP9OVYJur9UaoQIuCTcoIHKgwytZZv+",
+	"oiXD5QaqygOD+5wbTCD6fir0mmYP3lO9Wm0xJvDgcGNJacE3Kbl2PIEINsl2MTV4OGSHNdU9f0NMllkL",
+	"+ZwlcRJDTDzIjXiboSvy2ibX0pvpeRoLridlsuvoEWbn7BJGNbm1MhkjiOoPN8Qzp8kZY/50xF8NriGC",
+	"X/zOM781zO+0qDwQTG7yYSs8EFzuBhesyk08vMfmWcZMObh2SeoXkjZlXauWyAm2x9prBLpSeBOm+XEz",
+	"E/eq3Oka9guaAs3HnIvkGxrLlRyKcZZxOqc9jLFbxfvJ4jZf5EEa1BhF1/iaBpaz253e7tkhDH9A9VKc",
+	"lk3X9uGk69BprhNmbmYrKtj0MAvL254wFzVZOYy3gjZA51l2Xt1bV/2NApnF0+4XWpzy0NA5U+J9Ihzv",
+	"7KIM87u9KII2HUMkzrQQzNI/2uUw+XB1TA7biRRyWoRzfUz+T0xwtVciZbPj+nAvz2NSnI7+nF5fo6HT",
+	"XSfV/XZj9SqmnSikceBu9si16s1TWFolHOjoa8rlbnQzavBGH/5c9tIbQTgOXCyURsk0hwhux8F4Ah5o",
+	"RmktsF+EvkVm4tRfIyb+4z5HU1ZuaYM1KWcHI67k0rH7jPQt/FJvcLPuL1dd9zMsQ0JjIfr+CNyBOwzw",
+	"QLLMUd63lZ2QZHL02qduaHA9uGKrlbRNFiZB0IwMSShrakxrweOanL+1jb9dP06Y2asGtnsdqpM7zBhW",
+	"Nq4naGPDNTVq/vG7q5q9k8Zr6M3jPgC1lIRGMjFqLtvoqXA4MprF2fHeFHMW7sKmnfO1l/rLXnbhdM6g",
+	"pY8qKd91wOehrtrr8hPGvT33uqE1aFL/qYR/VW5Gnz99HaFMtOLy0r1bC7OapvhjcVeEtj2GrdGaTNf/",
+	"sUBKpG3k+814HPP2IpK7h2NCS34RQuX1yyPfFypmIlWWokWwCHrr4WQ+DsbBOGwXHi6MTxXOpuEqvpuq",
+	"g4Kq+i8AAP//ZNYHKjAKAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
