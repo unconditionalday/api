@@ -118,6 +118,7 @@ require (
 )
 
 require (
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve/v2 v2.3.10
 	github.com/loadsmart/calver-go v0.0.0-20230323142215-56cf73a68e8a
@@ -125,5 +126,6 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/mod v0.13.0
 	golang.org/x/sys v0.12.0 // indirect
 )

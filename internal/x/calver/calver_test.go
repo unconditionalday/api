@@ -14,10 +14,10 @@ func TestCalVerLower(t *testing.T) {
 	v2 := "2023.02.01"
 	result, err := calver.Lower(v1, v2)
 	if err != nil {
-		t.Errorf("Errore inaspettato: %v", err)
+		t.Errorf("Unexpected error: %v", err)
 	}
 	if !result {
-		t.Errorf("La versione v1 dovrebbe essere inferiore a v2")
+		t.Errorf("The v1 should be lower than v2")
 	}
 
 	// Test with v1 and v2 versions where v1 is greater
@@ -25,10 +25,10 @@ func TestCalVerLower(t *testing.T) {
 	v2 = "2023.02.01"
 	result, err = calver.Lower(v1, v2)
 	if err != nil {
-		t.Errorf("Errore inaspettato: %v", err)
+		t.Errorf("Unexpected error: %v", err)
 	}
 	if result {
-		t.Errorf("La versione v1 non dovrebbe essere inferiore a v2")
+		t.Errorf("The v1 shouldn't be lower than v2")
 	}
 
 	// Test with v1 and v2 versions where v1 is invalid
@@ -36,6 +36,6 @@ func TestCalVerLower(t *testing.T) {
 	v2 = "2023.02.01"
 	_, err = calver.Lower(v1, v2)
 	if err == nil {
-		t.Errorf("Dovrebbe esserci un errore per una versione non valida")
+		t.Errorf("Error expected")
 	}
 }
