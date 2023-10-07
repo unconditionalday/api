@@ -8,6 +8,7 @@ import (
 	"github.com/unconditionalday/server/internal/cmd/serve"
 	"github.com/unconditionalday/server/internal/container"
 	"github.com/unconditionalday/server/internal/service"
+	"github.com/unconditionalday/server/internal/version"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
 )
 
@@ -21,7 +22,7 @@ var (
 	ErrAllowedOriginsNotProvided   = errors.New("server allowed origins not provided, please provide it using --allowed-origins flag")
 )
 
-func NewServeCommand() *cobra.Command {
+func NewServeCommand(version version.Build) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "serve",
 		Short: "Starts the server",
@@ -62,15 +63,17 @@ func NewServeCommand() *cobra.Command {
 				return ErrAllowedOriginsNotProvided
 			}
 
-			params := container.NewParameters(a, i, s, sk, l, p, ao)
+			params := container.NewParameters(a, i, s, sk, l, p, ao, version)
 			c, _ := container.NewContainer(params)
 
 			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
 
-			source, err := sourceService.Download()
+			source, err := sourceService.Fetch()
 			if err != nil {
 				return err
 			}
+
+			c.Parameters.SourceRelease = &source
 
 			go serve.UpdateResources(&source, sourceService, c)
 

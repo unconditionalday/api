@@ -31,7 +31,7 @@ func NewDefaultParameters() Parameters {
 	}
 }
 
-func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string) Parameters {
+func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
@@ -39,6 +39,8 @@ func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, 
 
 		SourceRepository: sourceRepository,
 		SourceClientKey:  sourceClientKey,
+
+		BuildVersion: buildVersion,
 
 		FeedIndex: feedIndex,
 
@@ -53,6 +55,9 @@ type Parameters struct {
 
 	SourceRepository string
 	SourceClientKey  string
+	SourceRelease    *app.SourceRelease
+
+	BuildVersion version.Build
 
 	FeedIndex string
 
@@ -86,7 +91,7 @@ func (c *Container) GetAPIServer() *webserver.Server {
 		AllowedOrigins: c.Parameters.ServerAllowedOrigins,
 	}
 
-	c.apiServer = webserver.NewServer(config, c.GetFeedRepository(), c.GetLogger())
+	c.apiServer = webserver.NewServer(config, c.GetFeedRepository(), c.SourceRelease, c.BuildVersion, c.GetLogger())
 
 	return c.apiServer
 }

@@ -1,13 +1,15 @@
-openapi: "3.0.2"
+openapi: 3.0.2
+x-stoplight:
+  id: zo1541bc64oxo
 info:
   title: Isolated Think - Source API
   version: "1.0"
 servers:
-  - url: https://source.isolatedthink.test/v1
-  - url: http://localhost:8080
-  - url: 127.0.0.1:8080
+  - url: "https://source.isolatedthink.test/v1"
+  - url: "http://localhost:8080"
+  - url: "127.0.0.1:8080"
 paths:
-  /v1/search/feed/{query}:
+  "/v1/search/feed/{query}":
     get:
       responses:
         "200":
@@ -31,6 +33,28 @@ paths:
           required: true
           schema:
             type: string
+      x-stoplight:
+        id: pacmz9rv7a1k1
+  /v1/version:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerVersion"
+      operationId: get-v1-version
+      x-stoplight:
+        id: flrb4hew86v1s
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
 components:
   schemas:
     FeedItem:
@@ -52,7 +76,6 @@ components:
         date:
           type: string
           format: date-time
-
       required:
         - title
         - summary
@@ -60,7 +83,8 @@ components:
         - source
         - language
         - date
-
+      x-stoplight:
+        id: r1huzg5l9oykp
     FeedImage:
       type: object
       properties:
@@ -71,6 +95,8 @@ components:
       required:
         - url
         - title
+      x-stoplight:
+        id: g5p7hclip2ydk
     Error:
       type: object
       properties:
@@ -81,3 +107,52 @@ components:
       required:
         - message
         - code
+      x-stoplight:
+        id: gdj84rexxmxft
+    ServerVersion:
+      title: ServerVersion
+      x-stoplight:
+        id: z6s8y1u6qlv0p
+      type: object
+      properties:
+        source:
+          $ref: "#/components/schemas/SourceReleaseVersion"
+        build:
+          $ref: "#/components/schemas/ServerBuildVersion"
+      required:
+        - source
+        - build
+    SourceReleaseVersion:
+      title: SourceReleaseVersion
+      x-stoplight:
+        id: 9jgspbctklvnr
+      type: object
+      properties:
+        version:
+          type: string
+          x-stoplight:
+            id: ebqolha5zfx9n
+        lastUpdatedAt:
+          type: string
+          x-stoplight:
+            id: xj2nln4v17pzd
+      required:
+        - version
+        - lastUpdatedAt
+    ServerBuildVersion:
+      title: ServerBuildVersion
+      x-stoplight:
+        id: 7r5btva4x51y3
+      type: object
+      properties:
+        commit:
+          type: string
+          x-stoplight:
+            id: kbcq283u8u0h0
+        version:
+          type: string
+          x-stoplight:
+            id: sia3kpjqax11w
+      required:
+        - commit
+        - version
