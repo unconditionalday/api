@@ -10,6 +10,7 @@ import (
 
 	api "github.com/unconditionalday/server/api"
 	"github.com/unconditionalday/server/internal/app"
+	"github.com/unconditionalday/server/internal/search"
 	"github.com/unconditionalday/server/internal/version"
 )
 
@@ -18,6 +19,7 @@ type Server struct {
 	feedRepo     app.FeedRepository
 	source       *app.SourceRelease
 	buildVersion version.Build
+	search       search.SearchClient
 	logger       *zap.Logger
 	client       *echo.Echo
 }
@@ -28,12 +30,13 @@ type Config struct {
 	AllowedOrigins []string
 }
 
-func NewServer(config Config, repo app.FeedRepository, source *app.SourceRelease, version version.Build, logger *zap.Logger) *Server {
+func NewServer(config Config, repo app.FeedRepository, source *app.SourceRelease, search search.SearchClient, version version.Build, logger *zap.Logger) *Server {
 	return &Server{
 		config:       config,
 		feedRepo:     repo,
 		source:       source,
 		buildVersion: version,
+		search:       search,
 		logger:       logger,
 		client:       echo.New(),
 	}
@@ -114,24 +117,24 @@ func (s *Server) GetV1Version(ctx echo.Context) error {
 
 func (s *Server) GetV1InformerWikiQuery(ctx echo.Context, query string) error {
 	// TODO: add language support
-	wikiRes, err := s.wiki.Search(query, "en")
+	searchRes, err := s.search.FetchEntityDetails(query, "en")
 	if err != nil {
 		e := api.Error{
-			Code:    500,
+			Code:    http.StatusInternalServerError,
 			Message: "Internal Server Error",
 		}
 
 		s.logger.Error("wiki search", zap.Error(err))
 
-		return ctx.JSON(500, e)
+		return ctx.JSON(http.StatusInternalServerError, e)
 	}
 
 	res := api.WikiResult{
-		Language:  wikiRes.Language,
-		Link:      wikiRes.Link,
-		Summary:   wikiRes.Summary,
-		Thumbnail: wikiRes.Thumbnail,
-		Title:     wikiRes.Title,
+		Language:  searchRes.Language,
+		Link:      searchRes.Link,
+		Summary:   searchRes.Summary,
+		Thumbnail: searchRes.Thumbnail,
+		Title:     searchRes.Title,
 	}
 
 	return ctx.JSON(200, res)

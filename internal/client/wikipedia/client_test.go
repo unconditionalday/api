@@ -1,11 +1,11 @@
-package informer_test
+package wikipedia_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/unconditionalday/server/internal/informer"
+	"github.com/unconditionalday/server/internal/client/wikipedia"
 )
 
 type TestInput struct {
@@ -15,15 +15,15 @@ type TestInput struct {
 
 type TestExpect struct {
 	validRes bool
-	err error
+	err      error
 }
 
 func TestWikiSearch(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		name  string
-		input TestInput
+		name   string
+		input  TestInput
 		output TestExpect
 	}{
 		{
@@ -31,7 +31,7 @@ func TestWikiSearch(t *testing.T) {
 			input: TestInput{query: "", lang: "en"},
 			output: TestExpect{
 				validRes: false,
-				err: errors.New("query string must not be empty"),
+				err:      errors.New("query string must not be empty"),
 			},
 		},
 		{
@@ -39,7 +39,7 @@ func TestWikiSearch(t *testing.T) {
 			input: TestInput{query: "Lorem ipsum", lang: ""},
 			output: TestExpect{
 				validRes: false,
-				err: errors.New("language string must not be empty"),
+				err:      errors.New("language string must not be empty"),
 			},
 		},
 		{
@@ -47,7 +47,7 @@ func TestWikiSearch(t *testing.T) {
 			input: TestInput{query: "Salvini", lang: "en"},
 			output: TestExpect{
 				validRes: true,
-				err: nil,
+				err:      nil,
 			},
 		},
 	}
@@ -57,8 +57,8 @@ func TestWikiSearch(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			w := informer.NewWiki()
-			actual, err := w.Search(tc.input.query, tc.input.lang)
+			w := wikipedia.NewClient()
+			actual, err := w.FetchEntityDetails(tc.input.query, tc.input.lang)
 
 			if tc.output.err != nil {
 				assert.Equal(t, tc.output.err.Error(), err.Error())
