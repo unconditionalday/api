@@ -75,15 +75,6 @@ type GetV1VersionJSONBody map[string]interface{}
 // GetV1VersionJSONRequestBody defines body for GetV1Version for application/json ContentType.
 type GetV1VersionJSONRequestBody GetV1VersionJSONBody
 
-// WikiResult defines model for WikiResult.
-type WikiResult struct {
-	Language  string `json:"language"`
-	Link      string `json:"link"`
-	Summary   string `json:"summary"`
-	Thumbnail string `json:"thumbnail"`
-	Title     string `json:"title"`
-}
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
