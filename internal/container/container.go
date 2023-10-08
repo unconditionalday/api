@@ -10,8 +10,10 @@ import (
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/client/github"
+	"github.com/unconditionalday/server/internal/client/wikipedia"
 	"github.com/unconditionalday/server/internal/parser"
 	bleveRepo "github.com/unconditionalday/server/internal/repository/bleve"
+	"github.com/unconditionalday/server/internal/search"
 	"github.com/unconditionalday/server/internal/version"
 	"github.com/unconditionalday/server/internal/webserver"
 	blevex "github.com/unconditionalday/server/internal/x/bleve"
@@ -68,6 +70,7 @@ type Services struct {
 	apiServer      *webserver.Server
 	feedRepository *bleveRepo.FeedRepository
 	sourceClient   *github.Client
+	searchClient   *wikipedia.Client
 	httpClient     *netx.HttpClient
 	logger         *zap.Logger
 	parser         *parser.Parser
@@ -91,7 +94,7 @@ func (c *Container) GetAPIServer() *webserver.Server {
 		AllowedOrigins: c.Parameters.ServerAllowedOrigins,
 	}
 
-	c.apiServer = webserver.NewServer(config, c.GetFeedRepository(), c.SourceRelease, c.BuildVersion, c.GetLogger())
+	c.apiServer = webserver.NewServer(config, c.GetFeedRepository(), c.SourceRelease, c.GetSearchClient(), c.BuildVersion, c.GetLogger())
 
 	return c.apiServer
 }
@@ -126,6 +129,16 @@ func (c *Container) GetSourceClient() app.SourceClient {
 	c.sourceClient = github.New(c.SourceRepository, "unconditionalday", c.SourceClientKey, http.DefaultClient)
 
 	return c.sourceClient
+}
+
+func (c *Container) GetSearchClient() search.SearchClient {
+	if c.searchClient != nil {
+		return c.searchClient
+	}
+
+	c.searchClient = wikipedia.NewClient()
+
+	return c.searchClient
 }
 
 func (c *Container) GetVersioning() version.Versioning {
