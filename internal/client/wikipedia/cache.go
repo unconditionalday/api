@@ -1,4 +1,4 @@
-package wiki
+package wikipedia
 
 import (
 	"crypto/sha256"

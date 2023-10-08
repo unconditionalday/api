@@ -1,4 +1,4 @@
-package wiki
+package wikipedia
 
 import (
 	"errors"
@@ -62,7 +62,7 @@ func (page *WikipediaPage) GetContent(client *Client, lang string) (string, erro
 		"rvprop":      "ids",
 		"titles":      page.Title,
 	}
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +91,7 @@ func (page *WikipediaPage) GetHTML(client *Client, lang string) (string, error) 
 		"rvparse": "",
 		"titles":  page.Title,
 	}
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -154,7 +154,7 @@ func (page *WikipediaPage) GetSummary(client *Client, lang string) (string, erro
 		"exlimit":     "1",
 		"titles":      page.Title,
 	}
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -176,7 +176,7 @@ func (page *WikipediaPage) ContinuedQuery(args map[string]string, client *Client
 		new_args := maps.Clone(args)
 		mapsx.Update(new_args, last)
 
-		res, err := client.DoRequest(args, lang)
+		res, err := client.doRequest(args, lang)
 		if err != nil {
 			return result, err
 		}
@@ -269,7 +269,7 @@ func (page *WikipediaPage) GetThumbURL(client *Client, lang string) (string, err
 		"pithumbsize": "500",
 	}
 
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return "", err
 	}
@@ -294,7 +294,7 @@ func (page *WikipediaPage) GetCoordinate(client *Client, lang string) ([]float64
 		"titles":  page.Title,
 	}
 
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return []float64{}, err
 	}
@@ -396,7 +396,7 @@ func (page *WikipediaPage) GetSectionList(client *Client, lang string) ([]string
 	if page.Title != "" {
 		args["page"] = page.Title
 	}
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return []string{}, err
 	}
@@ -466,7 +466,7 @@ func MakeWikipediaPage(pageid int, title string, originaltitle string, redirect 
 	if originaltitle != "" {
 		page.OriginalTitle = originaltitle
 	}
-	res, err := client.DoRequest(args, lang)
+	res, err := client.doRequest(args, lang)
 	if err != nil {
 		return page, err
 	}
@@ -522,7 +522,7 @@ func MakeWikipediaPage(pageid int, title string, originaltitle string, redirect 
 			"rvlimit": "1",
 			"titles":  page.Title,
 		}
-		res, err := client.DoRequest(args, lang)
+		res, err := client.doRequest(args, lang)
 		if err != nil {
 			return page, err
 		}

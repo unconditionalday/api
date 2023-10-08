@@ -1,4 +1,4 @@
-package wiki
+package wikipedia
 
 type InnerBasic struct {
 	Aster string `json:"*"`
