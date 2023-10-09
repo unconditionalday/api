@@ -26,6 +26,7 @@ const (
 var (
 	ErrEmptyQuery    = errors.New("query string must not be empty")
 	ErrEmptyLanguage = errors.New("language string must not be empty")
+	ErrDisambiguationResult = errors.New("disambiguation result")
 )
 
 // Create a new WikiClient
@@ -113,13 +114,13 @@ func (c *Client) updateLastCall(now time.Time) {
 	c.lastCall = now
 }
 
-func (w *Client) FetchEntityDetails(query string, lang string) (search.EntityDetails, error) {
+func (w *Client) FetchContextDetails(query string, lang string) (search.ContextDetails, error) {
 	if query == "" {
-		return search.EntityDetails{}, ErrEmptyQuery
+		return search.ContextDetails{}, ErrEmptyQuery
 	}
 
 	if lang == "" {
-		return search.EntityDetails{}, ErrEmptyLanguage
+		return search.ContextDetails{}, ErrEmptyLanguage
 	}
 
 	args := map[string]string{
@@ -132,36 +133,35 @@ func (w *Client) FetchEntityDetails(query string, lang string) (search.EntityDet
 
 	res, err := w.doRequest(args, lang)
 	if err != nil {
-		return search.EntityDetails{}, err
+		return search.ContextDetails{}, err
 	}
 
 	if len(res.Query.Search) == 0 {
-		return search.EntityDetails{}, nil
+		return search.ContextDetails{}, nil
 	}
 
 	title := res.Query.Search[0].Title
 
 	wikiPage, err := MakeWikipediaPage(-1, title, "", false, w, lang)
 	if len(wikiPage.Disambiguation) != 0 {
-		title = wikiPage.Disambiguation[0]
-		wikiPage, err = MakeWikipediaPage(-1, title, "", false, w, lang)
+		return search.ContextDetails{}, nil
 	}
 
 	if err != nil {
-		return search.EntityDetails{}, err
+		return search.ContextDetails{}, err
 	}
 
 	summary, err := wikiPage.GetSummary(w, lang)
 	if err != nil {
-		return search.EntityDetails{}, err
+		return search.ContextDetails{}, err
 	}
 
 	thumbnail, err := wikiPage.GetThumbURL(w, lang)
 	if err != nil {
-		return search.EntityDetails{}, err
+		return search.ContextDetails{}, err
 	}
 
-	return search.EntityDetails{
+	return search.ContextDetails{
 		Title:     wikiPage.Title,
 		Language:  wikiPage.Language,
 		Link:      wikiPage.URL,
@@ -169,24 +169,4 @@ func (w *Client) FetchEntityDetails(query string, lang string) (search.EntityDet
 		Summary:   summary,
 		Thumbnail: thumbnail,
 	}, nil
-}
-
-func (c *Client) Suggest(_input, lang string) (string, error) {
-	args := map[string]string{
-		"action":   "query",
-		"list":     "search",
-		"srlimit":  "1",
-		"srprop":   "",
-		"srinfo":   "suggestion",
-		"srsearch": _input,
-	}
-
-	res, err := c.doRequest(args, lang)
-	if err != nil {
-		return "", err
-	}
-	if res.Error.Code != "" {
-		return "", errors.New(res.Error.Info)
-	}
-	return res.Query.SearchInfo.Suggestion, nil
 }
