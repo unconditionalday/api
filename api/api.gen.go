@@ -42,6 +42,15 @@ type FeedItem struct {
 	Title    string     `json:"title"`
 }
 
+// SearchContextDetails defines model for SearchContextDetails.
+type SearchContextDetails struct {
+	Language  string `json:"language"`
+	Link      string `json:"link"`
+	Summary   string `json:"summary"`
+	Thumbnail string `json:"thumbnail"`
+	Title     string `json:"title"`
+}
+
 // ServerBuildVersion defines model for ServerBuildVersion.
 type ServerBuildVersion struct {
 	Commit  string `json:"commit"`
@@ -60,35 +69,17 @@ type SourceReleaseVersion struct {
 	Version       string `json:"version"`
 }
 
-// WikiResult defines model for WikiResult.
-type WikiResult struct {
-	Language  string `json:"language"`
-	Link      string `json:"link"`
-	Summary   string `json:"summary"`
-	Thumbnail string `json:"thumbnail"`
-	Title     string `json:"title"`
-}
-
 // GetV1VersionJSONBody defines parameters for GetV1Version.
 type GetV1VersionJSONBody map[string]interface{}
 
 // GetV1VersionJSONRequestBody defines body for GetV1Version for application/json ContentType.
 type GetV1VersionJSONRequestBody GetV1VersionJSONBody
 
-// WikiResult defines model for WikiResult.
-type WikiResult struct {
-	Language  string `json:"language"`
-	Link      string `json:"link"`
-	Summary   string `json:"summary"`
-	Thumbnail string `json:"thumbnail"`
-	Title     string `json:"title"`
-}
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (GET /v1/informer/wiki/{query})
-	GetV1InformerWikiQuery(ctx echo.Context, query string) error
+	// (GET /v1/search/context/{query})
+	GetV1SearchContextQuery(ctx echo.Context, query string) error
 
 	// (GET /v1/search/feed/{query})
 	GetV1SearchFeedQuery(ctx echo.Context, query string) error
@@ -102,8 +93,8 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// GetV1InformerWikiQuery converts echo context to params.
-func (w *ServerInterfaceWrapper) GetV1InformerWikiQuery(ctx echo.Context) error {
+// GetV1SearchContextQuery converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1SearchContextQuery(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "query" -------------
 	var query string
@@ -114,7 +105,7 @@ func (w *ServerInterfaceWrapper) GetV1InformerWikiQuery(ctx echo.Context) error 
 	}
 
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetV1InformerWikiQuery(ctx, query)
+	err = w.Handler.GetV1SearchContextQuery(ctx, query)
 	return err
 }
 
@@ -171,7 +162,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/v1/informer/wiki/:query", wrapper.GetV1InformerWikiQuery)
+	router.GET(baseURL+"/v1/search/context/:query", wrapper.GetV1SearchContextQuery)
 	router.GET(baseURL+"/v1/search/feed/:query", wrapper.GetV1SearchFeedQuery)
 	router.GET(baseURL+"/v1/version", wrapper.GetV1Version)
 
@@ -180,22 +171,22 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8xW32/bNhD+V4LbHlVLcuzY0dsKdEWwh2Ht2mEo8kBLZ4s2f5mkFMuB/veBlCIpsZy6",
-	"RQf0yYZ4vPvu+44f+Qip5EoKFNZA8ggmzZET//ed1lK7P0pLhdpS9J9TmaH7tZVCSIAKixvUUAfA0Riy",
-	"GS4aq6nYQF0HoHFfUI0ZJF+6wKBJdh88xcvVFlMLARzeGCsVo5vcunQ0gwQ22XY503g48MPa+py/I2Z3",
-	"vC35HKWllo0hCaDQ7OsIXVDQJrkU3lwt8pRRNa2yXQ/PIj9FlxHrwa2l5sRC4j+8sZQ7Tk4Q06cWf9W4",
-	"hgR+CXvNwlawsOeiDoARsSnGpQiAUbEbXTCy0On4HlNwTnQ1unaO6heUNmF9qhZIV3aAOmgIupB4HefF",
-	"cTNnt7LaKV/2I+oS9duCsuwzakOlGBtjzqk9hT1eY7dK99PldbEsojzyNco+8SUJDCXXO7Xdk0McP0D9",
-	"kpwWTZ/2vuN1rJvLiFno+cqWZHaYx9X1gJiznKxcja8N2gicZ7Pz6l4f9QEZEoPd7hdcdPPQwDlh4ttI",
-	"ON6YZRUXN3tWRu10jIE44YIRYz8pN4fZbxePyWE7FUzMynihjtn3jAmu9pLlZH5cH27F6ZiUXevP4Q05",
-	"GuvuMqputxujVqndsVJoj/4fuqMf0BTMjhH0XR7zmpHkBV8JQtmPsJknc+ncps8+cJoTi/GUU7GWg0sE",
-	"PolUioxaKgVhg0OaQDyJHDapUBBFIYHrSTSZQgCK2NzTFJZx6PJpjjp8oDsaPu4L1FXtFjfoiXW0Epf9",
-	"zsnwHu3n+K7d4hT4y8X7nJpwtKgNJF8egToArg4EIAh3QPdtZE+I1QUG7a0+Rt69CzZKCtOoOo2ixh2F",
-	"ReHBEaUYTT28cGuaUe7zvXbaB9Pjac3QpJoq21D35x+OufkPrNc8WEZK3QmLWhB21RjIVRdYB14fg0Sn",
-	"ebhGzC5T56Pf4K7cn1kbapGbi94N7pFSd0eBaE2qn1SycedSJOXHW10uSLyLodN1YL7ntew90imDxr6V",
-	"WfVNDZ44SP0/Hqrnd+AZkYZGC//KQl+9f/f3FYpMSSrO2f+a6dUsx4flTRmbtg3jqzUz7R/OkFurTBKG",
-	"RNFJMfTFSUaqsIyhDoahSRgymRKWS2OTZbSMBuvxdDGJJtEkbhfuz9zgMp7P4lV6M5MHCXX9XwAAAP//",
-	"MmHoN7MMAAA=",
+	"H4sIAAAAAAAC/9SW246jRhPHX2XU33fJGnwYH7jLJpvVKBdRDrtStJqLhi6gPfTB3QVjPOLdowbG4DGe",
+	"9aw2UnJliy6q/vWrA/1EYiW0kiDRkvCJ2DgDQZu/H4xRxv3RRmkwyKF5HCsG7hcrDSQkXCKkYEjtEQHW",
+	"0nR4aNFwmZK69oiBXcENMBJ+ORp6rbN779leRVuIkXhk/86i0jlPM3TuOCMhKdKt2WblAxMgZ43PnwHY",
+	"nehCnqpEjvmYEo8UJv+6QmfkdU6ulBcLUUW4o6La8aqXhyDO1TGKjbhEGUGRhM2Dd8iFY3KmmD+n+H8D",
+	"CQnJ//y+Zn5XML9nUXskpzItxkvhkZzLh9EDqwoTj79jCyGoqUbPLqF+gbQ16111Qo5hB6q9FtCV4Pd0",
+	"sRfRMtJpQZMm7B9ATZz9qCTCHn8CpDy350X4RkivkcgKEUnK8+/B6ZnOEVfvfYDq/uh3POvrEM4ioCs2",
+	"Xa6XyWreITQlmPcFz9lnMJYrObYJhOB4ntF4DFD8YbZZRgFj2MYoe8fXONgWenp72NLyIZ1TUr/k1qnp",
+	"3Z6gOcvmOjB6FVUHinZp5wccgLnIJHIxvjarI3JOxu/Vdxur3yEHauH49gsWx5Fq5ZyReBuE2WKnponY",
+	"zDdRettCGBMxMmAWP2k3yuyHq9tktswSvk5xu4kY/5Y2weVer6CcS23Y9rxNymPqp/KGjMayu/Ibldg4",
+	"f1yUxXynHSoXnctEDT5J5JOMlWQcuZI0H/RrSKaTwDWC0iCp5iQk80kwmRGPaIpZg9Qvp75t5tyP20H3",
+	"n3YFmKp2pyk0SlwNqHN/5yR9BPw8PdkNv7kXGq+GCkAwloRfngh3Elwk4hFJhZO66yx7gGgK8Lpbwtgu",
+	"u3fGVitp2x6YBUG7KiSCbNRRrXMeN/r8rW3r2vt7fWxGFlyDmIGNDdfYYvz1F0fx9jtGbq9CI6HuJIKR",
+	"NL9p5+rm2XC8OzhTsN6ZdQDRnrXuBgVNANhbqum++P/mUnIEYa+6trg7Un0cMGoMrf5TdX1UNp8lbLHP",
+	"MjOo62BxXa5lv19cZcDie8WqNyV4upfqbuP9YzM4/H5cKNLwmkT+UoW5+fjhzxuQTCsuL63O3SIvD/FB",
+	"p3LzmHVp2CZa29PNvZ1kiNqGvk81nxTDRTphtPLLKam9oWno+7mKaZ4pi+E6WAeD8+lsNQkmwWTaHdyP",
+	"61osHjdFsAhuo9s5kLr+OwAA//+q0t+IMg0AAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

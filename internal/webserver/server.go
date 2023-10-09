@@ -115,7 +115,7 @@ func (s *Server) GetV1Version(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, v)
 }
 
-func (s *Server) GetV1InformerWikiQuery(ctx echo.Context, query string) error {
+func (s *Server) GetV1SearchContextQuery(ctx echo.Context, query string) error {
 	// TODO: add language support
 	searchRes, err := s.search.FetchContextDetails(query, "en")
 	if err != nil {
@@ -129,7 +129,7 @@ func (s *Server) GetV1InformerWikiQuery(ctx echo.Context, query string) error {
 		return ctx.JSON(http.StatusInternalServerError, e)
 	}
 
-	res := api.WikiResult{
+	res := api.SearchContextDetails{
 		Language:  searchRes.Language,
 		Link:      searchRes.Link,
 		Summary:   searchRes.Summary,
