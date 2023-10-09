@@ -66,7 +66,7 @@ func TestWikiSearch(t *testing.T) {
 			t.Parallel()
 
 			w := wikipedia.NewClient()
-			actual, err := w.FetchEntityDetails(tc.input.query, tc.input.lang)
+			actual, err := w.FetchContextDetails(tc.input.query, tc.input.lang)
 
 			if tc.output.err != nil {
 				assert.Equal(t, tc.output.err.Error(), err.Error())
