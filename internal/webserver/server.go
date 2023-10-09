@@ -117,7 +117,7 @@ func (s *Server) GetV1Version(ctx echo.Context) error {
 
 func (s *Server) GetV1InformerWikiQuery(ctx echo.Context, query string) error {
 	// TODO: add language support
-	searchRes, err := s.search.FetchEntityDetails(query, "en")
+	searchRes, err := s.search.FetchContextDetails(query, "en")
 	if err != nil {
 		e := api.Error{
 			Code:    http.StatusInternalServerError,
