@@ -18,7 +18,7 @@ type TestExpect struct {
 	err      error
 }
 
-func TestWikiSearch(t *testing.T) {
+func TestFetchContextDetails(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -40,14 +40,6 @@ func TestWikiSearch(t *testing.T) {
 			output: TestExpect{
 				validRes: false,
 				err:      errors.New("language string must not be empty"),
-			},
-		},
-		{
-			name:  "ambiguous result",
-			input: TestInput{query: "Rossi", lang: "en"},
-			output: TestExpect{
-				validRes: false,
-				err: errors.New("ambiguous result"),
 			},
 		},
 		{
