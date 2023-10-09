@@ -24,8 +24,8 @@ const (
 )
 
 var (
-	ErrEmptyQuery    = errors.New("query string must not be empty")
-	ErrEmptyLanguage = errors.New("language string must not be empty")
+	ErrEmptyQuery           = errors.New("query string must not be empty")
+	ErrEmptyLanguage        = errors.New("language string must not be empty")
 	ErrDisambiguationResult = errors.New("disambiguation result")
 )
 
@@ -165,7 +165,6 @@ func (w *Client) FetchContextDetails(query string, lang string) (search.ContextD
 		Title:     wikiPage.Title,
 		Language:  wikiPage.Language,
 		Link:      wikiPage.URL,
-		Source:    "Wikipedia",
 		Summary:   summary,
 		Thumbnail: thumbnail,
 	}, nil

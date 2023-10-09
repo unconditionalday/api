@@ -1,13 +1,13 @@
 openapi: 3.0.2
 x-stoplight:
-  id: zo1541bc64oxo
+  id: 44w9u0405b53e
 info:
   title: Unconditional
-  version: '1.0'
+  version: "1.0"
 servers:
-  - url: 'https://api.unconditional.day/v1'
-  - url: 'http://localhost:8080'
-  - url: '127.0.0.1:8080'
+  - url: "https://api.unconditional.day/v1"
+  - url: "http://localhost:8080"
+  - url: "127.0.0.1:8080"
 paths:
   "/v1/search/feed/{query}":
     get:
@@ -34,29 +34,8 @@ paths:
           schema:
             type: string
       x-stoplight:
-        id: pacmz9rv7a1k1
-  /v1/version:
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: "#/components/schemas/ServerVersion"
-      operationId: get-v1-version
-      x-stoplight:
-        id: flrb4hew86v1s
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties: {}
-  /v1/informer/wiki/{query}:
+        id: wosl2fd4xhhrd
+  "/v1/search/context/{query}":
     get:
       responses:
         "200":
@@ -65,7 +44,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/WikiResult"
+                $ref: "#/components/schemas/SearchContextDetails"
         "500":
           description: Internal Server Error
           content:
@@ -79,7 +58,29 @@ paths:
           required: true
           schema:
             type: string
-
+      x-stoplight:
+        id: idoe8qr80ebxd
+  "/v1/version":
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ServerVersion"
+      operationId: get-v1-version
+      x-stoplight:
+        id: q4lvzczpgn9wh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
 components:
   schemas:
     FeedItem:
@@ -109,7 +110,7 @@ components:
         - language
         - date
       x-stoplight:
-        id: r1huzg5l9oykp
+        id: xa4xmb6bpguaf
     FeedImage:
       type: object
       properties:
@@ -121,10 +122,11 @@ components:
         - url
         - title
       x-stoplight:
-        id: g5p7hclip2ydk
-
-    WikiResult:
+        id: cmmybtqamyqiy
+    SearchContextDetails:
       type: object
+      x-stoplight:
+        id: 2bea7d1686f73
       properties:
         title:
           type: string
@@ -136,13 +138,13 @@ components:
           type: string
         language:
           type: string
-
       required:
         - title
         - link
         - summary
         - thumbnail
         - language
+      title: SearchContextDetails
     Error:
       type: object
       properties:
@@ -154,11 +156,11 @@ components:
         - message
         - code
       x-stoplight:
-        id: gdj84rexxmxft
+        id: ugjrjhvkdmen2
     ServerVersion:
       title: ServerVersion
       x-stoplight:
-        id: z6s8y1u6qlv0p
+        id: 24qo1fm939bg5
       type: object
       properties:
         source:
@@ -171,34 +173,34 @@ components:
     SourceReleaseVersion:
       title: SourceReleaseVersion
       x-stoplight:
-        id: 9jgspbctklvnr
+        id: ufsclw4vu3qp5
       type: object
       properties:
         version:
           type: string
           x-stoplight:
-            id: ebqolha5zfx9n
+            id: t6xp7ev3nprdj
         lastUpdatedAt:
           type: string
           x-stoplight:
-            id: xj2nln4v17pzd
+            id: 26hfi8gtj9bdi
       required:
         - version
         - lastUpdatedAt
     ServerBuildVersion:
       title: ServerBuildVersion
       x-stoplight:
-        id: 7r5btva4x51y3
+        id: p7byzats6s3zt
       type: object
       properties:
         commit:
           type: string
           x-stoplight:
-            id: kbcq283u8u0h0
+            id: eoik296b0ddt3
         version:
           type: string
           x-stoplight:
-            id: sia3kpjqax11w
+            id: jup15zjavkg3a
       required:
         - commit
         - version
