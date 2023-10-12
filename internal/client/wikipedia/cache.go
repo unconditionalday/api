@@ -18,13 +18,6 @@ func FindAndDel(arr []string, s string) []string {
 	return append(arr[:index], arr[index+1:]...)
 }
 
-/*
-Create a cache that store:
-
-- Key: API request URL
-
-- Value: RequestResponse
-*/
 func MakeWikiCache(expiration time.Duration, maxMemory int) *Cache {
 	if expiration != 0 {
 		expiration = (12 * time.Hour)
@@ -45,7 +38,7 @@ func MakeWikiCache(expiration time.Duration, maxMemory int) *Cache {
 	return c
 }
 
-// Cache to store Wikipedia request result
+// Cache to store request result
 type Cache struct {
 	Memory         map[string]RequestResult // Map store request result
 	HashedKeyQueue []string                 // Key queue. Delete the first item if reach max cache
@@ -62,12 +55,12 @@ func HashCacheKey(s string) string {
 	return string(hasher.Sum(nil))
 }
 
-// Get WikiCache current number of cache
+// Get Cache current number of cache
 func (cache Cache) GetLen() int {
 	return len(cache.HashedKeyQueue)
 }
 
-// Add cache into the WikiCache
+// Add result into the Cache
 func (cache *Cache) Add(s string, res RequestResult) {
 	if len(cache.Memory) >= cache.MaxMemory {
 		cache.Pop()
@@ -86,7 +79,6 @@ func (cache *Cache) Add(s string, res RequestResult) {
 	}
 }
 
-// Get response from the Cache
 func (cache *Cache) Get(s string) (RequestResult, error) {
 	key := HashCacheKey(s)
 	if value, ok := cache.Memory[key]; ok {
