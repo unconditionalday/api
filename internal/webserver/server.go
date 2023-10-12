@@ -75,6 +75,8 @@ func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string) error {
 			Message: "Internal Server Error",
 		}
 
+		s.logger.Error("feed search", zap.Error(err))
+
 		return ctx.JSON(http.StatusInternalServerError, e)
 	}
 
@@ -124,7 +126,7 @@ func (s *Server) GetV1SearchContextQuery(ctx echo.Context, query string) error {
 			Message: "Internal Server Error",
 		}
 
-		s.logger.Error("wiki search", zap.Error(err))
+		s.logger.Error("context search", zap.Error(err))
 
 		return ctx.JSON(http.StatusInternalServerError, e)
 	}

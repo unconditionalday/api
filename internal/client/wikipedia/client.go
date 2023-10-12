@@ -29,7 +29,6 @@ var (
 	ErrDisambiguationResult = errors.New("disambiguation result")
 )
 
-// Create a new WikiClient
 func NewClient() *Client {
 	return &Client{
 		userAgent: "unconditional.day",
@@ -39,22 +38,15 @@ func NewClient() *Client {
 	}
 }
 
-/*
-Make a request to the Wikipedia API using the given search parameters.
-
-Returns a RequestResult
-*/
 func (c *Client) doRequest(args map[string]string, wikiLang string) (RequestResult, error) {
 	const ReqPerSec = 199
 	const ApiGap = time.Second / ReqPerSec
 
 	url := fmt.Sprintf(c.URL, wikiLang)
-	// Make new request object
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return RequestResult{}, err
 	}
-	// Add header
 	request.Header.Set("User-Agent", c.userAgent)
 	q := request.URL.Query()
 	// Add parameters
@@ -81,7 +73,6 @@ func (c *Client) doRequest(args map[string]string, wikiLang string) (RequestResu
 		return r, nil
 	}
 
-	// Make GET request
 	client := http.Client{Timeout: 10 * time.Second}
 	res, err := client.Do(request)
 	defer c.updateLastCall(now)
@@ -92,12 +83,10 @@ func (c *Client) doRequest(args map[string]string, wikiLang string) (RequestResu
 	if res.StatusCode != 200 {
 		return RequestResult{}, errors.New("unable to fetch the results")
 	}
-	// Read body
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return RequestResult{}, err
 	}
-	// Parse
 	var result RequestResult
 	err = json.Unmarshal([]byte(body), &result)
 	if err != nil {
@@ -107,9 +96,6 @@ func (c *Client) doRequest(args map[string]string, wikiLang string) (RequestResu
 	return result, nil
 }
 
-/*
-Update the last time we call the API (API should)
-*/
 func (c *Client) updateLastCall(now time.Time) {
 	c.lastCall = now
 }
@@ -161,11 +147,17 @@ func (w *Client) FetchContextDetails(query string, lang string) (search.ContextD
 		return search.ContextDetails{}, err
 	}
 
-	return search.ContextDetails{
+	s := search.ContextDetails{
 		Title:     wikiPage.Title,
 		Language:  wikiPage.Language,
 		Link:      wikiPage.URL,
 		Summary:   summary,
 		Thumbnail: thumbnail,
-	}, nil
+	}
+
+	if !s.IsValid() {
+		return search.ContextDetails{}, nil
+	}
+
+	return s, nil
 }
