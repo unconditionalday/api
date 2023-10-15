@@ -81,7 +81,7 @@ func (s *Source) FetchFeeds(src app.Source) ([]app.Feed, error) {
 	for _, source := range src {
 		feed, err := rss.Fetch(source.URL)
 		if err != nil {
-			s.logger.Warn("error fetching feed", zap.String("Url", source.URL), zap.Error(err))
+			s.logger.Error("error fetching feed", zap.String("Url", source.URL), zap.Error(err))
 			continue
 		}
 
@@ -105,7 +105,7 @@ func (s *Source) FetchFeeds(src app.Source) ([]app.Feed, error) {
 			}
 
 			if !f.IsValid() {
-				s.logger.Warn("invalid feed", zap.String("Feed title", f.Title))
+				s.logger.Warn("invalid feed from", zap.String("Source", rssFeed.Title))
 				continue
 			}
 

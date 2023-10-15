@@ -60,6 +60,7 @@ func NewCreateCommand() *cobra.Command {
 				c.GetLogger().Error("Can't fetch feeds", zap.Error(err))
 			}
 
+			actualFeeds := c.GetFeedRepository().Count()
 			for _, f := range feeds {
 				err := c.GetFeedRepository().Save(f)
 				if err != nil {
@@ -68,8 +69,7 @@ func NewCreateCommand() *cobra.Command {
 				}
 			}
 
-			c.GetLogger().Info("Index created", zap.String("Name", i))
-			c.GetLogger().Info("Documents indexed", zap.Uint64("Count", c.GetFeedRepository().Count()))
+			c.GetLogger().Info("New Documents indexed", zap.Uint64("Count", c.GetFeedRepository().Count()-actualFeeds))
 
 			return nil
 		},

@@ -111,9 +111,14 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 			if err != nil {
 				panic(err)
 			}
+
+			c.GetLogger().Info("Index already exists", zap.String("Name", c.FeedIndex))
+
 		} else {
 			panic(err)
 		}
+
+		c.GetLogger().Info("Index created", zap.String("Name", c.FeedIndex))
 	}
 
 	c.feedRepository = bleveRepo.NewFeedRepository(b)
