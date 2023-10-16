@@ -1,4 +1,4 @@
-package serve
+package index
 
 import (
 	"time"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/container"
+	"github.com/unconditionalday/server/internal/informer"
 	"github.com/unconditionalday/server/internal/service"
 )
 
@@ -15,7 +16,7 @@ var (
 	FeedsUpdateInterval  = 1 * time.Hour
 )
 
-func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.Container) {
+func UpdateResources(source *app.SourceRelease, s *service.Source, i *informer.Informer, c *container.Container) {
 	srcReleasesChan := make(chan *app.SourceRelease)
 	feedsTicker := time.NewTicker(FeedsUpdateInterval)
 
@@ -24,29 +25,10 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 	for {
 		select {
 		case newSource := <-srcReleasesChan:
-			feeds, err := s.FetchFeeds(newSource.Data)
-			if err != nil {
-				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
-			}
-
-			for _, f := range feeds {
-				if err := c.GetFeedRepository().Update(f); err != nil {
-					c.GetLogger().Error("Can't index new feed", zap.Error(err))
-				}
-			}
+			PopulateIndex(c, newSource.Data, s, i)
 			c.GetLogger().Debug("Feeds updated")
 		case <-feedsTicker.C:
-			feeds, err := s.FetchFeeds(source.Data)
-			if err != nil {
-				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
-			}
-
-			for _, f := range feeds {
-				if err := c.GetFeedRepository().Update(f); err != nil {
-					c.GetLogger().Error("Can't index new feed", zap.Error(err))
-				}
-			}
-
+			PopulateIndex(c, source.Data, s, i)
 			c.GetLogger().Debug("Feeds updated")
 		}
 	}
@@ -54,7 +36,6 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 
 func updateSource(sourceChan chan *app.SourceRelease, s *app.SourceRelease, sourceService *service.Source, l *zap.Logger) {
 	for {
-
 		time.Sleep(SourceUpdateInterval)
 
 		currentVersion := s.Version

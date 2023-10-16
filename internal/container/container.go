@@ -18,6 +18,7 @@ import (
 	"github.com/unconditionalday/server/internal/webserver"
 	blevex "github.com/unconditionalday/server/internal/x/bleve"
 	calverx "github.com/unconditionalday/server/internal/x/calver"
+	"github.com/unconditionalday/server/internal/x/exec"
 	netx "github.com/unconditionalday/server/internal/x/net"
 )
 
@@ -33,7 +34,7 @@ func NewDefaultParameters() Parameters {
 	}
 }
 
-func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
+func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, informerScriptsPath, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
@@ -69,6 +70,7 @@ type Parameters struct {
 type Services struct {
 	apiServer      *webserver.Server
 	feedRepository *bleveRepo.FeedRepository
+	pythonRunner   *exec.PythonRunner
 	sourceClient   *github.Client
 	searchClient   *wikipedia.Client
 	httpClient     *netx.HttpClient
@@ -119,6 +121,21 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 	c.feedRepository = bleveRepo.NewFeedRepository(b)
 
 	return c.feedRepository
+}
+
+func (c *Container) GetRunner() exec.Runner {
+	if c.pythonRunner != nil {
+		return c.pythonRunner
+	}
+
+	p, err := exec.NewPythonRunner()
+	if err != nil {
+		panic(err)
+	}
+
+	c.pythonRunner = p
+
+	return c.pythonRunner
 }
 
 func (c *Container) GetSourceClient() app.SourceClient {

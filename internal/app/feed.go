@@ -18,13 +18,14 @@ type FeedRepository interface {
 }
 
 type Feed struct {
-	Title    string    `json:"title"`
-	Link     string    `json:"link"`
-	Language string    `json:"language"`
-	Image    *Image    `json:"image"`
-	Summary  string    `json:"summary"`
-	Source   string    `json:"source"`
-	Date     time.Time `json:"date"`
+	Title      string    `json:"title"`
+	Link       string    `json:"link"`
+	Language   string    `json:"language"`
+	Image      *Image    `json:"image"`
+	Summary    string    `json:"summary"`
+	Source     string    `json:"source"`
+	Date       time.Time `json:"date"`
+	Similarity []float32
 }
 
 func (f Feed) IsValid() bool {
