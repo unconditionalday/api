@@ -54,6 +54,11 @@ func removeSpecialCharacters(content string) string {
 
 // function to remove html tags from the content using regex
 func removeHTML(content string) string {
+	// No-Break Space (NBSP)
+	re := regexp.MustCompile(`\x{00A0}`)
+
+	content = re.ReplaceAllString(content, " ")
+
 	return bluemonday.StrictPolicy().Sanitize(content)
 }
 
