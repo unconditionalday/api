@@ -3,9 +3,6 @@ kill_signal = "SIGINT"
 kill_timeout = 1
 processes = []
 
-[build]
-  secrets = ["UNCONDITIONAL_API_SOURCE_CLIENT_KEY"] 
-
 [build.args]
   UNCONDITIONAL_API_ADDRESS="0.0.0.0"
   UNCONDITIONAL_API_PORT="8080"
