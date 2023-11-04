@@ -8,18 +8,17 @@ import (
 
 	"github.com/unconditionalday/server/internal/cmd/index"
 	"github.com/unconditionalday/server/internal/container"
-	"github.com/unconditionalday/server/internal/informer"
 	"github.com/unconditionalday/server/internal/service"
 	cobrax "github.com/unconditionalday/server/internal/x/cobra"
 )
 
 var (
-	ErrIndexNotProvided               = errors.New("index not provided, please provide it using --index flag")
-	ErrSourceNotProvided              = errors.New("source not provided, please provide it using --source flag")
-	ErrLogEnvNotProvided              = errors.New("log-env not provided, please provide it using --log-env flag")
-	ErrInformerScriptsPathNotProvided = errors.New("informer-scripts-path not provided, please provide it using --informer-scripts-path flag")
-	ErrSourceRepositoryNotProvided    = errors.New("source repo not provided, please provide it using --source-repo flag")
-	ErrSourceClientKeyNotProvided     = errors.New("source client-key not provided, please provide it using --source-client-key flag")
+	ErrIndexNotProvided            = errors.New("index not provided, please provide it using --index flag")
+	ErrSourceNotProvided           = errors.New("source not provided, please provide it using --source flag")
+	ErrLogEnvNotProvided           = errors.New("log-env not provided, please provide it using --log-env flag")
+	ErrFeedInformerKeyNotProvided  = errors.New("feed-informer-key not provided, please provide it using --feed-informer-key flag")
+	ErrSourceRepositoryNotProvided = errors.New("source repo not provided, please provide it using --source-repo flag")
+	ErrSourceClientKeyNotProvided  = errors.New("source client-key not provided, please provide it using --source-client-key flag")
 )
 
 func NewCreateCommand() *cobra.Command {
@@ -33,9 +32,9 @@ func NewCreateCommand() *cobra.Command {
 				return ErrIndexNotProvided
 			}
 
-			ip := cobrax.Flag[string](cmd, "informer-scripts-path").(string)
-			if ip == "" {
-				return ErrInformerScriptsPathNotProvided
+			fk := cobrax.Flag[string](cmd, "feed-informer-key").(string)
+			if fk == "" {
+				return ErrFeedInformerKeyNotProvided
 			}
 
 			s := cobrax.Flag[string](cmd, "source").(string)
@@ -63,6 +62,7 @@ func NewCreateCommand() *cobra.Command {
 			params.LogEnv = l
 			params.SourceClientKey = sk
 			params.SourceRepository = sr
+			params.InformerClientKey = fk
 
 			c, _ := container.NewContainer(params)
 
@@ -73,9 +73,7 @@ func NewCreateCommand() *cobra.Command {
 				return err
 			}
 
-			informer := informer.NewInformer(c.GetRunner(), ip, c.GetLogger())
-
-			index.PopulateIndex(c, source.Data, sourceService, informer)
+			index.PopulateIndex(c, source.Data, sourceService)
 
 			c.GetLogger().Info("Index created", zap.String("Name", i))
 			c.GetLogger().Info("Documents indexed", zap.Uint64("Count", c.GetFeedRepository().Count()))
@@ -89,7 +87,7 @@ func NewCreateCommand() *cobra.Command {
 	cmd.Flags().String("source-client-key", "", "Source Client Key")
 	cmd.Flags().StringP("name", "n", "", "Index Name")
 	cmd.Flags().StringP("log-env", "l", "", "Log Env")
-	cmd.Flags().StringP("informer-scripts-path", "i", "", "Informer scripts path")
+	cmd.Flags().String("feed-informer-key", "", "Feed Informer Key")
 
 	envPrefix := "UNCONDITIONAL_API"
 	cobrax.BindFlags(cmd, cobrax.InitEnvs(envPrefix), envPrefix)

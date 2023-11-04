@@ -3,56 +3,51 @@ package index
 import (
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/container"
-	"github.com/unconditionalday/server/internal/informer"
 	"github.com/unconditionalday/server/internal/service"
 	"go.uber.org/zap"
 )
 
-func PopulateIndex(c *container.Container, source app.Source, sourceService *service.Source, informer *informer.Informer) error {
+func PopulateIndex(c *container.Container, source app.Source, sourceService *service.Source) error {
 	feeds, err := sourceService.FetchFeeds(source)
 	if err != nil {
 		c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
 		return err
 	}
 
-	pool := app.NewWorkerPool(10)
+	feedsToStore := getFeedsToStore(feeds, c)
 
-	pool.Start()
+	for _, f := range feedsToStore {
+		embeddings, err := c.GetInformerClient().GetEmbeddings(f.Summary)
+		if err != nil {
+			c.GetLogger().Error("Can't store new feeds", zap.String("Feed", f.Link), zap.Error(err))
+			return err
+		}
 
-	feedsToStore := len(feeds)
-	for i, f := range feeds {
-		taskID := i
+		f.Similarity = embeddings
 
-		result, err := c.GetFeedRepository().Find(f.Link)
+		err = c.GetFeedRepository().Save(f)
+		if err != nil {
+			c.GetLogger().Error("Can't store new feeds", zap.String("Feed", f.Link), zap.Error(err))
+		}
+	}
+
+	return nil
+}
+
+func getFeedsToStore(feeds []app.Feed, c *container.Container) []app.Feed {
+	feedsToStore := make([]app.Feed, 0)
+	for _, f := range feeds {
+		exists, err := c.GetFeedRepository().Exists(f.Link)
 		if err != nil {
 			c.GetLogger().Error("Unexpected error", zap.Error(err))
 		}
 
-		if len(result) > 0 {
+		if !exists {
 			continue
 		}
 
-		pool.SubmitTask(func() {
-			// s, err := informer.GetSimilarity(f.Summary)
-			// if err != nil {
-			// 	c.GetLogger().Error("Error during fetch similarity", zap.Error(err))
-			// }
-
-			// f.Similarity = s
-
-			err = c.GetFeedRepository().Save(f)
-			if err != nil {
-				c.GetLogger().Error("Can't save feed", zap.String("Feed", f.Link), zap.Error(err))
-			}
-
-			feedsToStore--
-
-			c.GetLogger().Debug("Task completed", zap.Int("ID", taskID))
-			c.GetLogger().Debug("Start new task", zap.Int("feeds remained", feedsToStore))
-		})
+		feedsToStore = append(feedsToStore, f)
 	}
 
-	pool.Stop()
-
-	return nil
+	return feedsToStore
 }

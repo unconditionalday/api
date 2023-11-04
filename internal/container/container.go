@@ -10,6 +10,7 @@ import (
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/client/github"
+	"github.com/unconditionalday/server/internal/client/informer"
 	"github.com/unconditionalday/server/internal/client/wikipedia"
 	"github.com/unconditionalday/server/internal/parser"
 	bleveRepo "github.com/unconditionalday/server/internal/repository/bleve"
@@ -34,7 +35,7 @@ func NewDefaultParameters() Parameters {
 	}
 }
 
-func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, informerScriptsPath, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
+func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, informerClientKey, informerClientBaseURL, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
@@ -46,6 +47,9 @@ func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, 
 		BuildVersion: buildVersion,
 
 		FeedIndex: feedIndex,
+
+		InformerClientBaseURL: informerClientBaseURL,
+		InformerClientKey:     informerClientKey,
 
 		LogEnv: logEnv,
 	}
@@ -64,6 +68,9 @@ type Parameters struct {
 
 	FeedIndex string
 
+	InformerClientKey     string
+	InformerClientBaseURL string
+
 	LogEnv string
 }
 
@@ -73,6 +80,7 @@ type Services struct {
 	pythonRunner   *exec.PythonRunner
 	sourceClient   *github.Client
 	searchClient   *wikipedia.Client
+	feedInformer   *informer.Client
 	httpClient     *netx.HttpClient
 	logger         *zap.Logger
 	parser         *parser.Parser
@@ -176,6 +184,16 @@ func (c *Container) GetHTTPClient() netx.Client {
 	c.httpClient = netx.NewHttpClient()
 
 	return c.httpClient
+}
+
+func (c *Container) GetInformerClient() app.InformerClient {
+	if c.feedInformer != nil {
+		return c.feedInformer
+	}
+
+	c.feedInformer = informer.New(c.InformerClientKey, c.InformerClientBaseURL, http.DefaultClient)
+
+	return c.feedInformer
 }
 
 // TODO: Needs to export a Logger interface

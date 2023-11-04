@@ -7,7 +7,6 @@ import (
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/container"
-	"github.com/unconditionalday/server/internal/informer"
 	"github.com/unconditionalday/server/internal/service"
 )
 
@@ -16,7 +15,7 @@ var (
 	FeedsUpdateInterval  = 1 * time.Hour
 )
 
-func UpdateResources(source *app.SourceRelease, s *service.Source, i *informer.Informer, c *container.Container) {
+func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.Container) {
 	srcReleasesChan := make(chan *app.SourceRelease)
 	feedsTicker := time.NewTicker(FeedsUpdateInterval)
 
@@ -25,10 +24,10 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, i *informer.I
 	for {
 		select {
 		case newSource := <-srcReleasesChan:
-			PopulateIndex(c, newSource.Data, s, i)
+			PopulateIndex(c, newSource.Data, s)
 			c.GetLogger().Debug("Feeds updated")
 		case <-feedsTicker.C:
-			PopulateIndex(c, source.Data, s, i)
+			PopulateIndex(c, source.Data, s)
 			c.GetLogger().Debug("Feeds updated")
 		}
 	}
