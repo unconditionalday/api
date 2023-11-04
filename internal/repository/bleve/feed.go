@@ -57,6 +57,15 @@ func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
 	return feeds, nil
 }
 
+func (f *FeedRepository) Exists(id string) (bool, error) {
+	feed, err := f.client.Document(id)
+	if err != nil {
+		return false, err
+	}
+
+	return feed == nil, nil
+}
+
 func (f *FeedRepository) Save(doc app.Feed) error {
 	if err := f.client.Index(doc.Link, doc); err != nil {
 		return err
