@@ -126,7 +126,7 @@ require (
 	github.com/blevesearch/bleve/v2 v2.3.10
 	github.com/loadsmart/calver-go v0.0.0-20230323142215-56cf73a68e8a
 	github.com/microcosm-cc/bluemonday v1.0.26
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/sys v0.13.0 // indirect
