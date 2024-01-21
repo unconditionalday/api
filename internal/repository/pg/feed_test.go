@@ -2,6 +2,8 @@ package pg_test
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -13,7 +15,13 @@ import (
 
 func setupTestDB(t *testing.T) (*sql.DB, func()) {
 	// Imposta la connessione al tuo database di test
-	db, err := sql.Open("postgres", "user=myuser dbname=mydb password=mypassword sslmode=disable")
+	dbUser := os.Getenv("UNCONDITIONAL_API_DATABASE_USER")
+	dbName := os.Getenv("UNCONDITIONAL_API_DATABASE_NAME")
+	dbPassword := os.Getenv("UNCONDITIONAL_API_DATABASE_PASSWORD")
+
+	dbConfig := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName)
+
+	db, err := sql.Open("postgres", dbConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
