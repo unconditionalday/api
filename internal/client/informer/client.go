@@ -32,7 +32,7 @@ type InputData struct {
 }
 
 func (c *Client) GetEmbeddings(sentence string) ([]float32, error) {
-	req, err := http.NewRequest("GET", c.baseURL+"/get_embedding", nil)
+	req, err := http.NewRequest("GET", c.baseURL+"/embedding", nil)
 	if err != nil {
 		return nil, err
 	}
