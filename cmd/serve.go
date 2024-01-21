@@ -13,13 +13,15 @@ import (
 )
 
 var (
-	ErrIndexNotProvided            = errors.New("index not provided, please provide it using --index flag")
 	ErrAddressNotProvided          = errors.New("server address not provided, please provide it using --address flag")
 	ErrPortNotProvided             = errors.New("server port not provided, please provide it using --port flag")
 	ErrLogEnvNotProvided           = errors.New("server log-env not provided, please provide it using --log-env flag")
 	ErrSourceRepositoryNotProvided = errors.New("source repo not provided, please provide it using --source-repo flag")
 	ErrSourceClientKeyNotProvided  = errors.New("source client-key not provided, please provide it using --source-client-key flag")
 	ErrAllowedOriginsNotProvided   = errors.New("server allowed origins not provided, please provide it using --allowed-origins flag")
+	ErrDatabaseNameNotProvided     = errors.New("database name not provided, please provide it using --database-name flag")
+	ErrDatabaseUserNotProvided     = errors.New("database user not provided, please provide it using --database-user flag")
+	ErrDatabasePasswordNotProvided = errors.New("database password not provided, please provide it using --database-password flag")
 )
 
 func NewServeCommand(version version.Build) *cobra.Command {
@@ -28,11 +30,6 @@ func NewServeCommand(version version.Build) *cobra.Command {
 		Short: "Starts the server",
 		Long:  `Starts the server`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			i := cobrax.Flag[string](cmd, "index").(string)
-			if i == "" {
-				return ErrIndexNotProvided
-			}
-
 			l := cobrax.Flag[string](cmd, "log-env").(string)
 			if l == "" {
 				return ErrLogEnvNotProvided
@@ -63,7 +60,22 @@ func NewServeCommand(version version.Build) *cobra.Command {
 				return ErrAllowedOriginsNotProvided
 			}
 
-			params := container.NewParameters(a, i, s, sk, l, p, ao, version)
+			dbName := cobrax.Flag[string](cmd, "database-name").(string)
+			if s == "" {
+				return ErrDatabaseNameNotProvided
+			}
+
+			dbUser := cobrax.Flag[string](cmd, "database-user").(string)
+			if s == "" {
+				return ErrDatabaseUserNotProvided
+			}
+
+			dbPassword := cobrax.Flag[string](cmd, "database-password").(string)
+			if s == "" {
+				return ErrDatabasePasswordNotProvided
+			}
+
+			params := container.NewParameters(a, s, sk, dbName, dbUser, dbPassword, l, p, ao, version)
 			c, _ := container.NewContainer(params)
 
 			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
@@ -88,6 +100,9 @@ func NewServeCommand(version version.Build) *cobra.Command {
 	cmd.Flags().String("source-repo", "", "Source Repository")
 	cmd.Flags().String("source-client-key", "", "Source Client Key")
 	cmd.Flags().StringP("log-env", "l", "", "Log Env")
+	cmd.Flags().StringP("database-name", "", "", "Database Name")
+	cmd.Flags().StringP("database-user", "", "", "Database User")
+	cmd.Flags().StringP("database-password", "", "", "Database Password")
 
 	envPrefix := "UNCONDITIONAL_API"
 	cobrax.BindFlags(cmd, cobrax.InitEnvs(envPrefix), envPrefix)

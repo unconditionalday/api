@@ -9,10 +9,28 @@ on:
 
 env:
   UNCONDITIONAL_API_SOURCE_CLIENT_KEY: ${{ secrets.UNCONDITIONAL_API_SOURCE_CLIENT_KEY }}
-  
+  UNCONDITIONAL_API_DATABASE_NAME: "postgres"
+  UNCONDITIONAL_API_DATABASE_USER: "postgres"
+  UNCONDITIONAL_API_DATABASE_PASSWORD: "postgres"
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: postgres        
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v3

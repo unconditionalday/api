@@ -2,6 +2,7 @@ package container
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -28,12 +29,11 @@ func NewDefaultParameters() Parameters {
 		ServerAllowedOrigins: []string{"*"},
 		SourceRepository:     "source",
 		SourceClientKey:      "secret",
-		FeedIndex:            "feed.index",
 		LogEnv:               "dev",
 	}
 }
 
-func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
+func NewParameters(serverAddress, sourceRepository, sourceClientKey, databaseName, databaseUser, databasePassword, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
@@ -44,7 +44,9 @@ func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, 
 
 		BuildVersion: buildVersion,
 
-		FeedIndex: feedIndex,
+		DatabaseName:     databaseName,
+		DatabaseUser:     databaseUser,
+		DatabasePassword: databasePassword,
 
 		LogEnv: logEnv,
 	}
@@ -61,7 +63,9 @@ type Parameters struct {
 
 	BuildVersion version.Build
 
-	FeedIndex string
+	DatabaseName     string
+	DatabaseUser     string
+	DatabasePassword string
 
 	LogEnv string
 }
@@ -105,7 +109,8 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 		return c.pgFeedRepository
 	}
 
-	db, err := sql.Open("postgres", "user=myuser password=mypassword dbname=mydb sslmode=disable")
+	dbConfig := fmt.Sprintf("user=%s password=%s dbname=%s", c.DatabaseUser, c.DatabasePassword, c.DatabaseName)
+	db, err := sql.Open("postgres", dbConfig)
 	if err != nil {
 		panic(err)
 	}

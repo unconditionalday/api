@@ -42,7 +42,7 @@ func NewCreateCommand() *cobra.Command {
 			}
 
 			params := container.NewDefaultParameters()
-			params.FeedIndex = i
+			// params.FeedIndex = i
 			params.LogEnv = l
 
 			c, _ := container.NewContainer(params)
