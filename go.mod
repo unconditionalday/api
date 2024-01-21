@@ -124,6 +124,7 @@ require (
 require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/blevesearch/bleve/v2 v2.3.10
+	github.com/lib/pq v1.10.9
 	github.com/loadsmart/calver-go v0.0.0-20230323142215-56cf73a68e8a
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/spf13/cobra v1.8.0

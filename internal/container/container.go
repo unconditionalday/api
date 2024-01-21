@@ -1,22 +1,22 @@
 package container
 
 import (
-	"errors"
+	"database/sql"
 	"net/http"
 
-	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/mapping"
 	"go.uber.org/zap"
+
+	_ "github.com/lib/pq"
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/client/github"
 	"github.com/unconditionalday/server/internal/client/wikipedia"
 	"github.com/unconditionalday/server/internal/parser"
 	bleveRepo "github.com/unconditionalday/server/internal/repository/bleve"
+	"github.com/unconditionalday/server/internal/repository/pg"
 	"github.com/unconditionalday/server/internal/search"
 	"github.com/unconditionalday/server/internal/version"
 	"github.com/unconditionalday/server/internal/webserver"
-	blevex "github.com/unconditionalday/server/internal/x/bleve"
 	calverx "github.com/unconditionalday/server/internal/x/calver"
 	netx "github.com/unconditionalday/server/internal/x/net"
 )
@@ -67,14 +67,15 @@ type Parameters struct {
 }
 
 type Services struct {
-	apiServer      *webserver.Server
-	feedRepository *bleveRepo.FeedRepository
-	sourceClient   *github.Client
-	searchClient   *wikipedia.Client
-	httpClient     *netx.HttpClient
-	logger         *zap.Logger
-	parser         *parser.Parser
-	versioning     *calverx.CalVer
+	apiServer           *webserver.Server
+	bleveFeedRepository *bleveRepo.FeedRepository
+	pgFeedRepository    *pg.FeedRepository
+	sourceClient        *github.Client
+	searchClient        *wikipedia.Client
+	httpClient          *netx.HttpClient
+	logger              *zap.Logger
+	parser              *parser.Parser
+	versioning          *calverx.CalVer
 }
 
 func NewContainer(p Parameters) (*Container, error) {
@@ -100,25 +101,18 @@ func (c *Container) GetAPIServer() *webserver.Server {
 }
 
 func (c *Container) GetFeedRepository() app.FeedRepository {
-	if c.feedRepository != nil {
-		return c.feedRepository
+	if c.pgFeedRepository != nil {
+		return c.pgFeedRepository
 	}
 
-	b, err := blevex.NewIndex(c.FeedIndex, mapping.NewIndexMapping())
+	db, err := sql.Open("postgres", "user=myuser password=mypassword dbname=mydb sslmode=disable")
 	if err != nil {
-		if errors.Is(bleve.ErrorIndexPathExists, err) {
-			b, err = blevex.New(c.FeedIndex)
-			if err != nil {
-				panic(err)
-			}
-		} else {
-			panic(err)
-		}
+		panic(err)
 	}
 
-	c.feedRepository = bleveRepo.NewFeedRepository(b)
+	c.pgFeedRepository = pg.NewFeedRepository(db)
 
-	return c.feedRepository
+	return c.pgFeedRepository
 }
 
 func (c *Container) GetSourceClient() app.SourceClient {
