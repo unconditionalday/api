@@ -7,7 +7,7 @@ CREATE TABLE feeds (
     image_url VARCHAR(255),
     summary TEXT,
     source VARCHAR(255),
-    date timestamptz,
+    date timestamp,
     embedding vector(384)
 );
 

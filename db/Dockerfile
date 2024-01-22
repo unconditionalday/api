@@ -19,11 +19,15 @@ RUN apk update && apk add --no-cache \
     git \
     postgresql-dev
 
-# Create directory for volume
-RUN mkdir -p /var/lib/postgresql/data
+# Clone, build, and install the pgvector extension
+RUN cd /tmp \
+    && git clone --branch v${PGVECTOR_VERSION} https://github.com/pgvector/pgvector.git \
+    && cd pgvector \
+    && make \
+    && make install
 
 # Copy initialization SQL script to be executed on container start
-COPY ./init.sql /docker-entrypoint-initdb.d/init.sql
+COPY ./init_pgvector.sql /docker-entrypoint-initdb.d/init.sql
 
 # Expose PostgreSQL port
 EXPOSE 5432
