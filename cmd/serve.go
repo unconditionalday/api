@@ -95,7 +95,6 @@ func NewServeCommand(version version.Build) *cobra.Command {
 
 	cmd.Flags().StringP("address", "a", "localhost", "Server address")
 	cmd.Flags().IntP("port", "p", 8080, "Server port")
-	cmd.Flags().StringP("index", "s", "", "Index path")
 	cmd.Flags().String("allowed-origins", "", "Allowed Origins")
 	cmd.Flags().String("source-repo", "", "Source Repository")
 	cmd.Flags().String("source-client-key", "", "Source Client Key")
