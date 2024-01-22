@@ -10,6 +10,7 @@ endif
 
 install-tools:
 	@go install gotest.tools/gotestsum@latest
+	@go install github.com/pressly/goose/v3/cmd/goose@v3.17.0
 
 .PHONY: generate
 
@@ -59,7 +60,7 @@ build:
 .PHONY: migrate
 
 migrate:
-	@migrate --path db/migration/ --database "postgresql://${UNCONDITIONAL_API_DATABASE_USER}:${UNCONDITIONAL_API_DATABASE_PASSWORD}@localhost:5432/${UNCONDITIONAL_API_DATABASE_NAME}?sslmode=disable" --verbose up
+	@goose --dir db/migration postgres "postgresql://${UNCONDITIONAL_API_DATABASE_USER}:${UNCONDITIONAL_API_DATABASE_PASSWORD}@localhost:5432/${UNCONDITIONAL_API_DATABASE_NAME}?sslmode=disable" up
 
 # Helpers
 check-variable-%: # detection of undefined variables.

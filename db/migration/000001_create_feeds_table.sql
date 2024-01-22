@@ -1,3 +1,4 @@
+-- +goose Up
 CREATE TABLE feeds (
     title VARCHAR(255) NOT NULL,
     link VARCHAR(255) PRIMARY KEY,
@@ -9,3 +10,6 @@ CREATE TABLE feeds (
     date timestamptz,
     embedding vector(384)
 );
+
+-- +goose Down
+DROP TABLE feeds;
