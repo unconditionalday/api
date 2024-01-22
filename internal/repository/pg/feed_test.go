@@ -7,14 +7,13 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/lib/pq" // Importa il driver PostgreSQL
+	_ "github.com/lib/pq"
 
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/repository/pg"
 )
 
 func setupTestDB(t *testing.T) (*sql.DB, func()) {
-	// Imposta la connessione al tuo database di test
 	dbUser := os.Getenv("UNCONDITIONAL_API_DATABASE_USER")
 	dbName := os.Getenv("UNCONDITIONAL_API_DATABASE_NAME")
 	dbPassword := os.Getenv("UNCONDITIONAL_API_DATABASE_PASSWORD")
@@ -26,13 +25,7 @@ func setupTestDB(t *testing.T) (*sql.DB, func()) {
 		t.Fatal(err)
 	}
 
-	// Esegui migrazioni o inizializza lo schema del database se necessario
-	// ...
-
-	// Funzione per pulire il database dopo i test
 	cleanup := func() {
-		// Pulisci il database (elimina dati di test, ecc.)
-		// ...
 		db.Close()
 	}
 
@@ -40,11 +33,9 @@ func setupTestDB(t *testing.T) (*sql.DB, func()) {
 }
 
 func TestSave(t *testing.T) {
-	// Imposta il database di test
 	db, cleanup := setupTestDB(t)
 	defer cleanup()
 
-	// Inizializza il repository
 	f := pg.NewFeedRepository(db)
 
 	testCases := []struct {
@@ -80,11 +71,9 @@ func TestSave(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	// Imposta il database di test
 	db, cleanup := setupTestDB(t)
 	defer cleanup()
 
-	// Inizializza il repository
 	f := pg.NewFeedRepository(db)
 
 	testCases := []struct {

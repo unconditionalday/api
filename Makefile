@@ -56,6 +56,11 @@ test-integration:
 build:
 	@go build --tags=release -o ${_PROJECT_DIRECTORY}/bin/unconditional-server
 
+.PHONY: migrate
+
+migrate:
+	@migrate --path db/migration/ --database "postgresql://${UNCONDITIONAL_API_DATABASE_USER}:${UNCONDITIONAL_API_DATABASE_PASSWORD}@localhost:5432/${UNCONDITIONAL_API_DATABASE_NAME}?sslmode=disable" --verbose up
+
 # Helpers
 check-variable-%: # detection of undefined variables.
 	@[[ "${${*}}" ]] || (echo '*** Please define variable `${*}` ***' && exit 1)
