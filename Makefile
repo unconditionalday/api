@@ -2,6 +2,8 @@
 _PROJECT_DIRECTORY = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 _GOARCH = "amd64"
 
+GOOSE_VER = "v3.17.0"
+
 ifeq ("$(shell uname -m)", "arm64")
 	_GOARCH = "arm64"
 endif
@@ -10,7 +12,7 @@ endif
 
 install-tools:
 	@go install gotest.tools/gotestsum@latest
-	@go install github.com/pressly/goose/v3/cmd/goose@v3.17.0
+	@go install github.com/pressly/goose/v3/cmd/goose@${GOOSE_VER}
 
 .PHONY: generate
 
