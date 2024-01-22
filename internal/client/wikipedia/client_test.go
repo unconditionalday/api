@@ -42,7 +42,7 @@ func TestFetchContextDetails(t *testing.T) {
 		},
 		{
 			name:  "valid query",
-			input: TestInput{query: "Salvini", lang: "en"},
+			input: TestInput{query: "Jean Paul Sartre", lang: "en"},
 			output: TestExpect{
 				validRes: true,
 				err:      nil,
