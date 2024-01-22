@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16-alpine
+        image: ankane/pgvector:v0.5.1
         env:
           POSTGRES_DB: postgres        
           POSTGRES_PASSWORD: postgres

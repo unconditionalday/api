@@ -59,11 +59,6 @@ test-integration:
 build:
 	@go build --tags=release -o ${_PROJECT_DIRECTORY}/bin/unconditional-server
 
-.PHONY: prepare-db
-
-prepare-db:
-	@sh ./scripts/prepare_db.sh
-
 .PHONY: migrate
 
 migrate:
