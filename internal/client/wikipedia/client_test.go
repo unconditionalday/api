@@ -19,8 +19,6 @@ type TestExpect struct {
 }
 
 func TestFetchContextDetails(t *testing.T) {
-	t.Parallel()
-
 	testCases := []struct {
 		name   string
 		input  TestInput
@@ -55,8 +53,6 @@ func TestFetchContextDetails(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
 			w := wikipedia.NewClient()
 			actual, err := w.FetchContextDetails(tc.input.query, tc.input.lang)
 

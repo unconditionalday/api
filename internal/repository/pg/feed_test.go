@@ -32,6 +32,14 @@ func setupTestDB(t *testing.T) (*sql.DB, func()) {
 	return db, cleanup
 }
 
+func cleanupFeed(t *testing.T, db *sql.DB, link string) {
+	_, err := db.Exec("DELETE FROM feeds WHERE link = $1", link)
+
+	if err != nil {
+		t.Errorf("Cleanup error: %v", err)
+	}
+}
+
 func TestSave(t *testing.T) {
 	db, cleanup := setupTestDB(t)
 	defer cleanup()
@@ -61,6 +69,8 @@ func TestSave(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := f.Save(tc.document)
+
+			defer cleanupFeed(t, db, tc.document.Link)
 
 			if (err != nil) != tc.wantErr {
 				t.Errorf("Save() error = %v, wantErr %v", err, tc.wantErr)
@@ -103,6 +113,8 @@ func TestFind(t *testing.T) {
 				t.Errorf("Save() error = %v, wantErr %v", err, tc.wantErr)
 				return
 			}
+
+			defer cleanupFeed(t, db, tc.document.Link)
 
 			found, err := f.Find(tc.document.Title)
 			if (err != nil) != tc.wantErr {
