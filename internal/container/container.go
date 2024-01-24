@@ -1,22 +1,19 @@
 package container
 
 import (
-	"errors"
 	"net/http"
 
-	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/mapping"
 	"go.uber.org/zap"
 
+	"github.com/typesense/typesense-go/typesense"
 	"github.com/unconditionalday/server/internal/app"
 	"github.com/unconditionalday/server/internal/client/github"
 	"github.com/unconditionalday/server/internal/client/wikipedia"
 	"github.com/unconditionalday/server/internal/parser"
-	bleveRepo "github.com/unconditionalday/server/internal/repository/bleve"
+	typesenseRepo "github.com/unconditionalday/server/internal/repository/typesense"
 	"github.com/unconditionalday/server/internal/search"
 	"github.com/unconditionalday/server/internal/version"
 	"github.com/unconditionalday/server/internal/webserver"
-	blevex "github.com/unconditionalday/server/internal/x/bleve"
 	calverx "github.com/unconditionalday/server/internal/x/calver"
 	netx "github.com/unconditionalday/server/internal/x/net"
 )
@@ -28,12 +25,12 @@ func NewDefaultParameters() Parameters {
 		ServerAllowedOrigins: []string{"*"},
 		SourceRepository:     "source",
 		SourceClientKey:      "secret",
-		FeedIndex:            "feed.index",
+		FeedRepositoryIndex:  "feed.index",
 		LogEnv:               "dev",
 	}
 }
 
-func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
+func NewParameters(serverAddress, feedIndex, feedRepoHost, feedRepoKey, sourceRepository, sourceClientKey, logEnv string, serverPort int, serverAllowedOrigins []string, buildVersion version.Build) Parameters {
 	return Parameters{
 		ServerAddress:        serverAddress,
 		ServerPort:           serverPort,
@@ -44,7 +41,9 @@ func NewParameters(serverAddress, feedIndex, sourceRepository, sourceClientKey, 
 
 		BuildVersion: buildVersion,
 
-		FeedIndex: feedIndex,
+		FeedRepositoryIndex: feedIndex,
+		FeedRepositoryHost:  feedRepoHost,
+		FeedRepositoryKey:   feedRepoKey,
 
 		LogEnv: logEnv,
 	}
@@ -61,14 +60,16 @@ type Parameters struct {
 
 	BuildVersion version.Build
 
-	FeedIndex string
+	FeedRepositoryIndex string
+	FeedRepositoryHost  string
+	FeedRepositoryKey   string
 
 	LogEnv string
 }
 
 type Services struct {
 	apiServer      *webserver.Server
-	feedRepository *bleveRepo.FeedRepository
+	feedRepository *typesenseRepo.FeedRepository
 	sourceClient   *github.Client
 	searchClient   *wikipedia.Client
 	httpClient     *netx.HttpClient
@@ -104,19 +105,11 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 		return c.feedRepository
 	}
 
-	b, err := blevex.NewIndex(c.FeedIndex, mapping.NewIndexMapping())
-	if err != nil {
-		if errors.Is(bleve.ErrorIndexPathExists, err) {
-			b, err = blevex.New(c.FeedIndex)
-			if err != nil {
-				panic(err)
-			}
-		} else {
-			panic(err)
-		}
-	}
+	client := typesense.NewClient(
+		typesense.WithServer(c.FeedRepositoryHost),
+		typesense.WithAPIKey(c.FeedRepositoryKey))
 
-	c.feedRepository = bleveRepo.NewFeedRepository(b)
+	c.feedRepository = typesenseRepo.NewFeedRepository(client)
 
 	return c.feedRepository
 }
