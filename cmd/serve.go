@@ -13,7 +13,9 @@ import (
 )
 
 var (
-	ErrIndexNotProvided            = errors.New("index not provided, please provide it using --index flag")
+	ErrFeedRepoIndexNotProvided    = errors.New("feed repository index not provided, please provide it using --feed-repo-index flag")
+	ErrFeedRepoHostNotProvided     = errors.New("feed repository host not provided, please provide it using --feed-repo-host flag")
+	ErrFeedRepoKeyNotProvided      = errors.New("feed repository key not provided, please provide it using --feed-repo-key flag")
 	ErrAddressNotProvided          = errors.New("server address not provided, please provide it using --address flag")
 	ErrPortNotProvided             = errors.New("server port not provided, please provide it using --port flag")
 	ErrLogEnvNotProvided           = errors.New("server log-env not provided, please provide it using --log-env flag")
@@ -22,15 +24,25 @@ var (
 	ErrAllowedOriginsNotProvided   = errors.New("server allowed origins not provided, please provide it using --allowed-origins flag")
 )
 
-func NewServeCommand(version version.Build) *cobra.Command {
+func NewServeCommand(buildVersion version.Build) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "serve",
 		Short: "Starts the server",
 		Long:  `Starts the server`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			i := cobrax.Flag[string](cmd, "index").(string)
+			i := cobrax.Flag[string](cmd, "feed-repo-index").(string)
 			if i == "" {
-				return ErrIndexNotProvided
+				return ErrFeedRepoIndexNotProvided
+			}
+
+			frh := cobrax.Flag[string](cmd, "feed-repo-host").(string)
+			if i == "" {
+				return ErrFeedRepoHostNotProvided
+			}
+
+			frk := cobrax.Flag[string](cmd, "feed-repo-key").(string)
+			if i == "" {
+				return ErrFeedRepoKeyNotProvided
 			}
 
 			l := cobrax.Flag[string](cmd, "log-env").(string)
@@ -63,7 +75,7 @@ func NewServeCommand(version version.Build) *cobra.Command {
 				return ErrAllowedOriginsNotProvided
 			}
 
-			params := container.NewParameters(a, i, s, sk, l, p, ao, version)
+			params := container.NewParameters(a, i, frh, frk, s, sk, l, p, ao, buildVersion)
 			c, _ := container.NewContainer(params)
 
 			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
@@ -83,7 +95,9 @@ func NewServeCommand(version version.Build) *cobra.Command {
 
 	cmd.Flags().StringP("address", "a", "localhost", "Server address")
 	cmd.Flags().IntP("port", "p", 8080, "Server port")
-	cmd.Flags().StringP("index", "s", "", "Index path")
+	cmd.Flags().StringP("feed-repo-index", "s", "", "Index path")
+	cmd.Flags().StringP("feed-repo-host", "", "", "Feed's repository host")
+	cmd.Flags().StringP("feed-repo-key", "", "", "Feed's repository API's key")
 	cmd.Flags().String("allowed-origins", "", "Allowed Origins")
 	cmd.Flags().String("source-repo", "", "Source Repository")
 	cmd.Flags().String("source-client-key", "", "Source Client Key")
