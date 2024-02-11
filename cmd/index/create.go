@@ -72,8 +72,8 @@ func NewCreateCommand() *cobra.Command {
 			t := c.GetTypesenseClient()
 
 			feedSchema := typesense.GetFeedSchema(t)
-			if err := typesensex.CreateSchema(t, feedSchema); err != nil && errors.Is(err, typesensex.ErrCollectionAlreadyExists) {
-				c.GetLogger().Warn("Feed schema already exists")
+			if err := typesensex.CreateOrUpdateCollection(t, feedSchema); err != nil {
+				return err
 			}
 
 			sourceService := service.NewSource(c.GetSourceClient(), c.GetParser(), c.GetVersioning(), c.GetLogger())
