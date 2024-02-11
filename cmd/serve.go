@@ -56,7 +56,7 @@ func NewServeCommand(buildVersion version.Build) *cobra.Command {
 			}
 
 			sk := cobrax.Flag[string](cmd, "source-client-key").(string)
-			if s == "" {
+			if sk == "" {
 				return ErrSourceClientKeyNotProvided
 			}
 
