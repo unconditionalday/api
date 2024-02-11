@@ -68,14 +68,15 @@ type Parameters struct {
 }
 
 type Services struct {
-	apiServer      *webserver.Server
-	feedRepository *typesenseRepo.FeedRepository
-	sourceClient   *github.Client
-	searchClient   *wikipedia.Client
-	httpClient     *netx.HttpClient
-	logger         *zap.Logger
-	parser         *parser.Parser
-	versioning     *calverx.CalVer
+	apiServer       *webserver.Server
+	feedRepository  *typesenseRepo.FeedRepository
+	sourceClient    *github.Client
+	searchClient    *wikipedia.Client
+	httpClient      *netx.HttpClient
+	typesenseClient *typesense.Client
+	logger          *zap.Logger
+	parser          *parser.Parser
+	versioning      *calverx.CalVer
 }
 
 func NewContainer(p Parameters) (*Container, error) {
@@ -112,6 +113,20 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 	c.feedRepository = typesenseRepo.NewFeedRepository(client)
 
 	return c.feedRepository
+}
+
+func (c *Container) GetTypesenseClient() *typesense.Client {
+	if c.typesenseClient != nil {
+		return c.typesenseClient
+	}
+
+	client := typesense.NewClient(
+		typesense.WithServer(c.FeedRepositoryHost),
+		typesense.WithAPIKey(c.FeedRepositoryKey))
+
+	c.typesenseClient = client
+
+	return c.typesenseClient
 }
 
 func (c *Container) GetSourceClient() app.SourceClient {
