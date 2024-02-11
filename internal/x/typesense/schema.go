@@ -13,11 +13,23 @@ var (
 	ErrCollectionAlreadyExists = errors.New("the collection already exists")
 )
 
-func CreateSchema(client *typesense.Client, schema *api.CollectionSchema) error {
+func CreateOrUpdateCollection(client *typesense.Client, schema *api.CollectionSchema) error {
 	if _, err := client.Collections().Create(context.Background(), schema); err != nil {
 		if strings.Contains(err.Error(), "already exists") {
-			return ErrCollectionAlreadyExists
+			return updateCollection(client, schema)
 		}
+	}
+
+	return nil
+}
+
+func updateCollection(client *typesense.Client, schema *api.CollectionSchema) error {
+	u := &api.CollectionUpdateSchema{
+		Fields: schema.Fields,
+	}
+
+	if _, err := client.Collection(schema.Name).Update(context.Background(), u); err != nil{
+		return err
 	}
 
 	return nil
