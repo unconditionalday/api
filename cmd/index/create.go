@@ -40,7 +40,7 @@ func NewCreateCommand() *cobra.Command {
 			}
 
 			frk := cobrax.Flag[string](cmd, "feed-repo-key").(string)
-			if i == "" {
+			if frk == "" {
 				return ErrFeedRepoKeyNotProvided
 			}
 
