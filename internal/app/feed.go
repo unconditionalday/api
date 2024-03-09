@@ -7,6 +7,8 @@ import (
 type FeedRepository interface {
 	// Search returns the results of a search query.
 	Find(query string) ([]Feed, error)
+	// Search returns the results of a search query by similarity.
+	FindBySimilarity(query string) ([]Feed, error)
 	// Index indexes a document.
 	Save(doc Feed) error
 	// Update a document in index.
