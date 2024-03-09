@@ -69,6 +69,11 @@ type SourceReleaseVersion struct {
 	Version       string `json:"version"`
 }
 
+// GetV1SearchFeedQueryParams defines parameters for GetV1SearchFeedQuery.
+type GetV1SearchFeedQueryParams struct {
+	BySimilarity *bool `json:"bySimilarity,omitempty"`
+}
+
 // GetV1VersionJSONBody defines parameters for GetV1Version.
 type GetV1VersionJSONBody map[string]interface{}
 
@@ -82,7 +87,7 @@ type ServerInterface interface {
 	GetV1SearchContextQuery(ctx echo.Context, query string) error
 
 	// (GET /v1/search/feed/{query})
-	GetV1SearchFeedQuery(ctx echo.Context, query string) error
+	GetV1SearchFeedQuery(ctx echo.Context, query string, params GetV1SearchFeedQueryParams) error
 	// Your GET endpoint
 	// (GET /v1/version)
 	GetV1Version(ctx echo.Context) error
@@ -120,8 +125,17 @@ func (w *ServerInterfaceWrapper) GetV1SearchFeedQuery(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter query: %s", err))
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetV1SearchFeedQueryParams
+	// ------------- Optional query parameter "bySimilarity" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "bySimilarity", ctx.QueryParams(), &params.BySimilarity)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter bySimilarity: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetV1SearchFeedQuery(ctx, query)
+	err = w.Handler.GetV1SearchFeedQuery(ctx, query, params)
 	return err
 }
 
@@ -171,22 +185,22 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9SW246jRhPHX2XU33fJGnwYH7jLJpvVKBdRDrtStJqLhi6gPfTB3QVjPOLdowbG4DGe",
-	"9aw2UnJliy6q/vWrA/1EYiW0kiDRkvCJ2DgDQZu/H4xRxv3RRmkwyKF5HCsG7hcrDSQkXCKkYEjtEQHW",
-	"0nR4aNFwmZK69oiBXcENMBJ+ORp6rbN779leRVuIkXhk/86i0jlPM3TuOCMhKdKt2WblAxMgZ43PnwHY",
-	"nehCnqpEjvmYEo8UJv+6QmfkdU6ulBcLUUW4o6La8aqXhyDO1TGKjbhEGUGRhM2Dd8iFY3KmmD+n+H8D",
-	"CQnJ//y+Zn5XML9nUXskpzItxkvhkZzLh9EDqwoTj79jCyGoqUbPLqF+gbQ16111Qo5hB6q9FtCV4Pd0",
-	"sRfRMtJpQZMm7B9ATZz9qCTCHn8CpDy350X4RkivkcgKEUnK8+/B6ZnOEVfvfYDq/uh3POvrEM4ioCs2",
-	"Xa6XyWreITQlmPcFz9lnMJYrObYJhOB4ntF4DFD8YbZZRgFj2MYoe8fXONgWenp72NLyIZ1TUr/k1qnp",
-	"3Z6gOcvmOjB6FVUHinZp5wccgLnIJHIxvjarI3JOxu/Vdxur3yEHauH49gsWx5Fq5ZyReBuE2WKnponY",
-	"zDdRettCGBMxMmAWP2k3yuyHq9tktswSvk5xu4kY/5Y2weVer6CcS23Y9rxNymPqp/KGjMayu/Ibldg4",
-	"f1yUxXynHSoXnctEDT5J5JOMlWQcuZI0H/RrSKaTwDWC0iCp5iQk80kwmRGPaIpZg9Qvp75t5tyP20H3",
-	"n3YFmKp2pyk0SlwNqHN/5yR9BPw8PdkNv7kXGq+GCkAwloRfngh3Elwk4hFJhZO66yx7gGgK8Lpbwtgu",
-	"u3fGVitp2x6YBUG7KiSCbNRRrXMeN/r8rW3r2vt7fWxGFlyDmIGNDdfYYvz1F0fx9jtGbq9CI6HuJIKR",
-	"NL9p5+rm2XC8OzhTsN6ZdQDRnrXuBgVNANhbqum++P/mUnIEYa+6trg7Un0cMGoMrf5TdX1UNp8lbLHP",
-	"MjOo62BxXa5lv19cZcDie8WqNyV4upfqbuP9YzM4/H5cKNLwmkT+UoW5+fjhzxuQTCsuL63O3SIvD/FB",
-	"p3LzmHVp2CZa29PNvZ1kiNqGvk81nxTDRTphtPLLKam9oWno+7mKaZ4pi+E6WAeD8+lsNQkmwWTaHdyP",
-	"61osHjdFsAhuo9s5kLr+OwAA//+q0t+IMg0AAA==",
+	"H4sIAAAAAAAC/9SXzW7jNhDHXyVge9RasqPEsW7ddrsIeija7S5QLHKgpJHEiF8mR3KcQO9eUJItOZaz",
+	"ziJ76CmGOJz58zcfZJ5IooRWEiRaEj0RmxQgaPvzgzHKuB/aKA0GGbSfE5WC+4tbDSQiTCLkYEjjEQHW",
+	"0ny8aNEwmZOm8YiBdcUMpCT6ujf0Omd33s5exfeQIPHIwzuLSnOWF+jcsZRERGSZvTdlfDNXeNX6/B0g",
+	"vRV9yEOVyJBPKfFIZfi3FTojr3dypjzK461MCobJ+rEa5CGIY3UpxVZcpoygSKL2wztkwjE5Usx2R/zZ",
+	"QEYi8pM/5MzvE+YPLBqPcCrzajoVHuFMlpMLVlUmmd5jKyGo2U6unUL9DGlnNrjqhezDjlR7HaAzwZcb",
+	"2GQiCx/y9SW0YT8BNUnxq5IID/gbIGXcHifhOyG9RKKoRCwp42/BaUdnj2vwPkJ1t/c7ferzEGZFZjiF",
+	"uFxRW/YITQ3mfcV4+gWMZUpOTQIhGB6faDpGeIP8cllXmypc6jZGPTg+x4HYrB9MfoVBXVskzXNuvZrB",
+	"7QGao9Oc2dTXeVjbe6uu1eNmBOYkk9jF+FavTsg5aL8X97ZWfwMHamG/+xmLfUt1co5IvA5CKEKZJkwo",
+	"MEncQZgSMdFgFj9r18rpL2eXiXrM+TZYas4fN/H3lEkeLkotsqsVrGx8XCb1/uiH8saMpk53Hqq1kWyV",
+	"UFiurbl2wd34lpkaXUnks0yUTBkyJSkf1WtE5rPAFYLSIKlmJCKXs2C2IB7RFIsWqV/Pfdv2uZ90je4/",
+	"rSsw28at5tAqcTmgzv2tk/QR8Mv8YDb85Ta0Xg0VgGAsib4+EeYkuEjEI5IKJ3XdWw4A0VTg9a+EqVl2",
+	"54ytVtJ2NbAIgm5USATZqqNac5a0+vx72+V18Pdy20wMuBZxCjYxTGOH8c8/HMWrN4zcPYUmQt1KBCMp",
+	"v+j66mJnOF0dy+RyFdbXpbnCLOvcjRKaAaSvyaa78V9K5S55fS7j7ScmGKeGoft6lMJYKQ5UvkEOGYKw",
+	"Z71X3OOo2XcWNYZu/1cJhesKZFEuxGJedk/SH9JTfZ2MBuHp2hjmlQsAFt+rdPsqbodzrukn6A/r6fF9",
+	"dCL342cX+VdV5uLjh38uQKZaMXlqFKsqAR3WqypeLx77Y9g2Wpea9v8AUiBqG/k+1WxWjQfzLKVbv56T",
+	"xhubRr7PVUJ5oSxGN8FNMFqfL5azYBbM5v3C3Yn7KSjFKriXsQpZQJrmvwAAAP//A98fT4INAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

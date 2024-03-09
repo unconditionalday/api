@@ -56,6 +56,11 @@ test-integration:
 build:
 	@go build --tags=release -o ${_PROJECT_DIRECTORY}/bin/unconditional-server
 
+.PHONY: deploy
+
+deploy:
+	@sh ./scripts/deploy.sh
+
 # Helpers
 check-variable-%: # detection of undefined variables.
 	@[[ "${${*}}" ]] || (echo '*** Please define variable `${*}` ***' && exit 1)

@@ -55,6 +55,42 @@ func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
 	return feeds, nil
 }
 
+
+func (f *FeedRepository) FindBySimilarity(query string) ([]app.Feed, error){
+	searchParameters := &api.SearchCollectionParams{
+		Q:       query,
+		QueryBy: "title_summary_embedding",
+	}
+	searchResult, err := f.client.Collection("feeds").Documents().Search(f.ctx, searchParameters)
+	if err != nil {
+		return nil, err
+	}
+
+	feeds := make([]app.Feed, len(*searchResult.Hits))
+	for i, x := range *searchResult.Hits {
+		doc := *x.Document
+
+		date, err := time.Parse(time.RFC3339, doc["date"].(string))
+		if err != nil {
+			return nil, err
+		}
+
+		f := app.Feed{
+			Title:    doc["title"].(string),
+			Link:     doc["link"].(string),
+			Source:   doc["source"].(string),
+			Language: doc["language"].(string),
+			Summary:  doc["summary"].(string),
+			Date:     date,
+		}
+
+		feeds[i] = f
+	}
+
+	return feeds, nil
+}
+
+
 func (f *FeedRepository) Save(doc app.Feed) error {
 	docMap := map[string]interface{}{
 		"id":       doc.Link,
