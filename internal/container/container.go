@@ -1,7 +1,9 @@
 package container
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -106,9 +108,7 @@ func (c *Container) GetFeedRepository() app.FeedRepository {
 		return c.feedRepository
 	}
 
-	client := typesense.NewClient(
-		typesense.WithServer(c.FeedRepositoryHost),
-		typesense.WithAPIKey(c.FeedRepositoryKey))
+	client := c.GetTypesenseClient()
 
 	c.feedRepository = typesenseRepo.NewFeedRepository(client)
 
@@ -120,9 +120,20 @@ func (c *Container) GetTypesenseClient() *typesense.Client {
 		return c.typesenseClient
 	}
 
+	typesenseConnTimeout := 1 * time.Hour
+
+	// TODO: Export it in a x/typesense pkg as wrapper with check config logic
 	client := typesense.NewClient(
 		typesense.WithServer(c.FeedRepositoryHost),
-		typesense.WithAPIKey(c.FeedRepositoryKey))
+		typesense.WithAPIKey(c.FeedRepositoryKey),
+		typesense.WithConnectionTimeout(typesenseConnTimeout),
+		typesense.WithCircuitBreakerInterval(typesenseConnTimeout),
+	)
+
+	c.GetLogger().Info("Waiting typesense healthcheck...")
+	if _, err := client.Health(context.Background(), typesenseConnTimeout); err != nil {
+		panic(err)
+	}
 
 	c.typesenseClient = client
 

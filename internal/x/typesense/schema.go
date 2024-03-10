@@ -18,6 +18,7 @@ func CreateOrUpdateCollection(client *typesense.Client, schema *api.CollectionSc
 		if strings.Contains(err.Error(), "already exists") {
 			return updateCollection(client, schema)
 		}
+		return err
 	}
 
 	return nil
@@ -28,7 +29,12 @@ func updateCollection(client *typesense.Client, schema *api.CollectionSchema) er
 		Fields: schema.Fields,
 	}
 
-	if _, err := client.Collection(schema.Name).Update(context.Background(), u); err != nil{
+	if _, err := client.Collection(schema.Name).Update(context.Background(), u); err != nil {
+		if strings.Contains(err.Error(), "is already part of the schema") {
+			// TODO: capture the log of error
+			return nil
+		}
+
 		return err
 	}
 
