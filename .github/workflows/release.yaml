@@ -4,7 +4,6 @@ on:
     types: [published]
 
 env:
-  UNCONDITIONAL_API_SOURCE_CLIENT_KEY: ${{ secrets.UNCONDITIONAL_API_SOURCE_CLIENT_KEY }}
   UNCONDITIONAL_API_BUILD_COMMIT_VERSION: ${{ github.sha }}
   UNCONDITIONAL_API_BUILD_RELEASE_VERSION: ${{ github.event.release.tag_name }}
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
