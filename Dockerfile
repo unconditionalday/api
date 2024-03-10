@@ -3,7 +3,7 @@ ARG GO_VERSION=1.21
 
 FROM alpine:${ALPINE_VERSION} AS certificator
 RUN apk --update add --no-cache ca-certificates openssl git tzdata && \
-update-ca-certificates
+    update-ca-certificates
 
 FROM golang:${GO_VERSION}-alpine AS builder
 WORKDIR /app
@@ -40,8 +40,12 @@ ENV UNCONDITIONAL_API_FEED_REPO_KEY=${UNCONDITIONAL_API_FEED_REPO_KEY}
 ENV UNCONDITIONAL_API_LOG_ENV=${UNCONDITIONAL_API_LOG_ENV}
 
 RUN --mount=type=secret,id=UNCONDITIONAL_API_SOURCE_CLIENT_KEY \
+    --mount=type=secret,id=UNCONDITIONAL_API_FEED_REPO_HOST \
+    --mount=type=secret,id=UNCONDITIONAL_API_FEED_REPO_INDEX \
     --mount=type=secret,id=UNCONDITIONAL_API_FEED_REPO_KEY \
     UNCONDITIONAL_API_SOURCE_CLIENT_KEY="$(cat /run/secrets/UNCONDITIONAL_API_SOURCE_CLIENT_KEY)" \
+    UNCONDITIONAL_API_FEED_REPO_HOST="$(cat /run/secrets/UNCONDITIONAL_API_FEED_REPO_HOST)" \
+    UNCONDITIONAL_API_FEED_REPO_INDEX="$(cat /run/secrets/UNCONDITIONAL_API_FEED_REPO_INDEX)" \
     UNCONDITIONAL_API_FEED_REPO_KEY="$(cat /run/secrets/UNCONDITIONAL_API_FEED_REPO_KEY)" \
     /app/main index create --name feeds
 
