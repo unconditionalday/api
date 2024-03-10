@@ -57,6 +57,7 @@ func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
 
 func (f *FeedRepository) Save(doc app.Feed) error {
 	docMap := map[string]interface{}{
+		"id":       doc.Link,
 		"title":    doc.Title,
 		"link":     doc.Link,
 		"source":   doc.Source,
@@ -74,19 +75,31 @@ func (f *FeedRepository) Save(doc app.Feed) error {
 	return nil
 }
 
-func (f *FeedRepository) Update(doc app.Feed) error {
-	// Convert app.Feed to map[string]interface{} for updating
-	docMap := map[string]interface{}{
-		"title":    doc.Title,
-		"link":     doc.Link,
-		"source":   doc.Source,
-		"language": doc.Language,
-		"summary":  doc.Summary,
-		"date":     doc.Date.Format(time.RFC3339),
+func (f *FeedRepository) Update(docs ...app.Feed) error {
+	docsMap := make([]interface{}, len(docs))
+
+	for i, doc := range docs {
+		// Convert app.Feed to map[string]interface{} for updating
+		docMap := map[string]interface{}{
+			"id":       doc.Link,
+			"title":    doc.Title,
+			"link":     doc.Link,
+			"source":   doc.Source,
+			"language": doc.Language,
+			"summary":  doc.Summary,
+			"date":     doc.Date.Format(time.RFC3339),
+		}
+
+		docsMap[i] = docMap
+	}
+
+	upsertAction := "upsert"
+	params := &api.ImportDocumentsParams{
+		Action: &upsertAction,
 	}
 
 	// Perform the update operation
-	_, err := f.client.Collection("feeds").Documents().Upsert(f.ctx, docMap)
+	_, err := f.client.Collection("feeds").Documents().Import(f.ctx, docsMap, params)
 	if err != nil {
 		return err
 	}

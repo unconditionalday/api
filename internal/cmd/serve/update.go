@@ -28,11 +28,8 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 			if err != nil {
 				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
 			}
-
-			for _, f := range feeds {
-				if err := c.GetFeedRepository().Update(f); err != nil {
-					c.GetLogger().Error("Can't index new feed", zap.Error(err))
-				}
+			if err := c.GetFeedRepository().Update(feeds...); err != nil {
+				c.GetLogger().Error("Can't index new feed", zap.Error(err))
 			}
 			c.GetLogger().Debug("Feeds updated")
 		case <-feedsTicker.C:
@@ -41,10 +38,8 @@ func UpdateResources(source *app.SourceRelease, s *service.Source, c *container.
 				c.GetLogger().Error("Can't fetch new feeds", zap.Error(err))
 			}
 
-			for _, f := range feeds {
-				if err := c.GetFeedRepository().Update(f); err != nil {
-					c.GetLogger().Error("Can't index new feed", zap.Error(err))
-				}
+			if err := c.GetFeedRepository().Update(feeds...); err != nil {
+				c.GetLogger().Error("Can't index new feed", zap.Error(err))
 			}
 
 			c.GetLogger().Debug("Feeds updated")

@@ -88,12 +88,8 @@ func NewCreateCommand() *cobra.Command {
 				c.GetLogger().Error("Can't fetch feeds", zap.Error(err))
 			}
 
-			for _, f := range feeds {
-				err := c.GetFeedRepository().Save(f)
-				if err != nil {
-					c.GetLogger().Error("Can't save feed", zap.String("Feed", f.Link), zap.Error(err))
-					continue
-				}
+			if err := c.GetFeedRepository().Update(feeds...); err != nil {
+				c.GetLogger().Error("Can't save feed", zap.Error(err))
 			}
 
 			c.GetLogger().Info("Index created", zap.String("Name", i))

@@ -10,7 +10,7 @@ type FeedRepository interface {
 	// Index indexes a document.
 	Save(doc Feed) error
 	// Update a document in index.
-	Update(doc Feed) error
+	Update(docs ...Feed) error
 	// Count the number of documents indexed.
 	Count() uint64
 	// Delete deletes a document.
