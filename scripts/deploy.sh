@@ -8,7 +8,7 @@ if ! command -v flyctl &> /dev/null; then
 fi
 
 # Deploy
-flyctl deploy \
+flyctl deploy --remote-only \
   --build-secret UNCONDITIONAL_API_SOURCE_CLIENT_KEY="$UNCONDITIONAL_API_SOURCE_CLIENT_KEY" \
   --build-secret UNCONDITIONAL_API_FEED_REPO_KEY="$UNCONDITIONAL_API_FEED_REPO_KEY" \
   --build-secret UNCONDITIONAL_API_FEED_REPO_HOST="$UNCONDITIONAL_API_FEED_REPO_HOST" \
