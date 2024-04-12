@@ -67,15 +67,11 @@ func (s *Server) Start() error {
 }
 
 // (GET /v1/search/feed/{query})
-func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string, params api.GetV1SearchFeedQueryParams) error {
+func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string) error {
 	var feeds []app.Feed
 	var err error
 
-	if params.BySimilarity != nil && *params.BySimilarity {
-		feeds, err = s.feedRepo.FindBySimilarity(query)
-	} else {
-		feeds, err = s.feedRepo.Find(query)
-	}
+	feeds, err = s.feedRepo.FindByKeyword(query)
 	if err != nil {
 		e := api.Error{
 			Code:    http.StatusInternalServerError,
@@ -87,9 +83,12 @@ func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string, params api
 		return ctx.JSON(http.StatusInternalServerError, e)
 	}
 
+	fmt.Println(feeds)
+
 	fi := make([]api.FeedItem, len(feeds))
 	for i, f := range feeds {
 		fi[i] = api.FeedItem{
+			Id:       f.ID,
 			Source:   f.Source,
 			Date:     f.Date,
 			Language: f.Language,
@@ -107,6 +106,72 @@ func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string, params api
 	}
 
 	return ctx.JSON(http.StatusOK, fi)
+}
+
+func (s *Server) GetV1SearchFeedSimilarities(ctx echo.Context, feedID string) error {
+	var feeds []app.Feed
+	var err error
+
+	f, err := s.feedRepo.FindByID(feedID)
+	if err != nil {
+		e := api.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+
+		s.logger.Error("feed search", zap.Error(err))
+
+		return ctx.JSON(http.StatusInternalServerError, e)
+	}
+
+	feeds, err = s.feedRepo.FindBySimilarity(f)
+	if err != nil {
+		e := api.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal Server Error",
+		}
+
+		s.logger.Error("feed search", zap.Error(err))
+
+		return ctx.JSON(http.StatusInternalServerError, e)
+	}
+
+	fi := make([]api.FeedItem, len(feeds))
+	for i, f := range feeds {
+		fi[i] = api.FeedItem{
+			Id:       f.ID,
+			Source:   f.Source,
+			Date:     f.Date,
+			Language: f.Language,
+			Link:     f.Link,
+			Summary:  f.Summary,
+			Title:    f.Title,
+		}
+
+		if f.Image != nil {
+			fi[i].Image = &api.FeedImage{
+				Title: f.Image.Title,
+				Url:   f.Image.URL,
+			}
+		}
+	}
+
+	fItem := api.FeedItem{
+		Date:     f.Date,
+		Id:       f.ID,
+		Language: f.Language,
+		Link:     f.Link,
+		Source:   f.Source,
+		Summary:  f.Summary,
+		Title:    f.Title,
+	}
+
+	fd := api.FeedDetails{
+		Similarities: &fi,
+		Source:       &fItem,
+	}
+
+	return ctx.JSON(http.StatusOK, fd)
 }
 
 func (s *Server) GetV1Version(ctx echo.Context) error {

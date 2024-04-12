@@ -2,6 +2,9 @@ package typesense
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/typesense/typesense-go/typesense"
@@ -21,7 +24,7 @@ func NewFeedRepository(client *typesense.Client) *FeedRepository {
 	}
 }
 
-func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
+func (f *FeedRepository) FindByKeyword(query string) ([]app.Feed, error) {
 	searchParameters := &api.SearchCollectionParams{
 		Q:       query,
 		QueryBy: "title, summary",
@@ -41,6 +44,7 @@ func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
 		}
 
 		f := app.Feed{
+			ID:       doc["id"].(string),
 			Title:    doc["title"].(string),
 			Link:     doc["link"].(string),
 			Source:   doc["source"].(string),
@@ -55,11 +59,38 @@ func (f *FeedRepository) Find(query string) ([]app.Feed, error) {
 	return feeds, nil
 }
 
+func (f *FeedRepository) FindByID(id string) (app.Feed, error) {
+	d, err := f.client.Collection("feeds").Document(id).Retrieve(f.ctx)
+	if err != nil {
+		return app.Feed{}, err
+	}
 
-func (f *FeedRepository) FindBySimilarity(query string) ([]app.Feed, error){
+	date, err := time.Parse(time.RFC3339, d["date"].(string))
+	if err != nil {
+		return app.Feed{}, err
+	}
+
+	fStruct := app.Feed{
+		ID:       d["id"].(string),
+		Title:    d["title"].(string),
+		Link:     d["link"].(string),
+		Source:   d["source"].(string),
+		Language: d["language"].(string),
+		Summary:  d["summary"].(string),
+		Date:     date,
+	}
+
+	return fStruct, nil
+}
+
+func (f *FeedRepository) FindBySimilarity(feed app.Feed) ([]app.Feed, error) {
+	vQ := fmt.Sprintf("title_summary_embedding:([], id: %s, distance_threshold:0.183)", feed.ID)
+	eF := "title_summary_embedding"
 	searchParameters := &api.SearchCollectionParams{
-		Q:       query,
-		QueryBy: "title_summary_embedding",
+		Q:             feed.Title,
+		QueryBy:       "title,title_summary_embedding",
+		VectorQuery:   &vQ,
+		ExcludeFields: &eF,
 	}
 	searchResult, err := f.client.Collection("feeds").Documents().Search(f.ctx, searchParameters)
 	if err != nil {
@@ -90,10 +121,9 @@ func (f *FeedRepository) FindBySimilarity(query string) ([]app.Feed, error){
 	return feeds, nil
 }
 
-
 func (f *FeedRepository) Save(doc app.Feed) error {
 	docMap := map[string]interface{}{
-		"id":       doc.Link,
+		"id":       generateUniqueID(doc.Link),
 		"title":    doc.Title,
 		"link":     doc.Link,
 		"source":   doc.Source,
@@ -117,7 +147,7 @@ func (f *FeedRepository) Update(docs ...app.Feed) error {
 	for i, doc := range docs {
 		// Convert app.Feed to map[string]interface{} for updating
 		docMap := map[string]interface{}{
-			"id":       doc.Link,
+			"id":       generateUniqueID(doc.Link),
 			"title":    doc.Title,
 			"link":     doc.Link,
 			"source":   doc.Source,
@@ -159,4 +189,14 @@ func (f *FeedRepository) Delete(doc app.Feed) error {
 	}
 
 	return nil
+}
+
+func generateUniqueID(link string) string {
+	hash := sha256.New()
+	hash.Write([]byte(link))
+	hashBytes := hash.Sum(nil)
+
+	uniqueID := hex.EncodeToString(hashBytes)
+
+	return uniqueID
 }

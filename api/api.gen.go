@@ -25,6 +25,12 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// FeedDetails defines model for FeedDetails.
+type FeedDetails struct {
+	Similarities *[]FeedItem `json:"similarities,omitempty"`
+	Source       *FeedItem   `json:"source,omitempty"`
+}
+
 // FeedImage defines model for FeedImage.
 type FeedImage struct {
 	Title string `json:"title"`
@@ -33,7 +39,9 @@ type FeedImage struct {
 
 // FeedItem defines model for FeedItem.
 type FeedItem struct {
+	*string  `json:",omitempty"`
 	Date     time.Time  `json:"date"`
+	Id       string     `json:"id"`
 	Image    *FeedImage `json:"image,omitempty"`
 	Language string     `json:"language"`
 	Link     string     `json:"link"`
@@ -69,11 +77,6 @@ type SourceReleaseVersion struct {
 	Version       string `json:"version"`
 }
 
-// GetV1SearchFeedQueryParams defines parameters for GetV1SearchFeedQuery.
-type GetV1SearchFeedQueryParams struct {
-	BySimilarity *bool `json:"bySimilarity,omitempty"`
-}
-
 // GetV1VersionJSONBody defines parameters for GetV1Version.
 type GetV1VersionJSONBody map[string]interface{}
 
@@ -85,9 +88,12 @@ type ServerInterface interface {
 
 	// (GET /v1/search/context/{query})
 	GetV1SearchContextQuery(ctx echo.Context, query string) error
+	// Your GET endpoint
+	// (GET /v1/search/feed/similarities/{feedID})
+	GetV1SearchFeedSimilarities(ctx echo.Context, feedID string) error
 
 	// (GET /v1/search/feed/{query})
-	GetV1SearchFeedQuery(ctx echo.Context, query string, params GetV1SearchFeedQueryParams) error
+	GetV1SearchFeedQuery(ctx echo.Context, query string) error
 	// Your GET endpoint
 	// (GET /v1/version)
 	GetV1Version(ctx echo.Context) error
@@ -114,6 +120,22 @@ func (w *ServerInterfaceWrapper) GetV1SearchContextQuery(ctx echo.Context) error
 	return err
 }
 
+// GetV1SearchFeedSimilarities converts echo context to params.
+func (w *ServerInterfaceWrapper) GetV1SearchFeedSimilarities(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "feedID" -------------
+	var feedID string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "feedID", runtime.ParamLocationPath, ctx.Param("feedID"), &feedID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter feedID: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.GetV1SearchFeedSimilarities(ctx, feedID)
+	return err
+}
+
 // GetV1SearchFeedQuery converts echo context to params.
 func (w *ServerInterfaceWrapper) GetV1SearchFeedQuery(ctx echo.Context) error {
 	var err error
@@ -125,17 +147,8 @@ func (w *ServerInterfaceWrapper) GetV1SearchFeedQuery(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter query: %s", err))
 	}
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetV1SearchFeedQueryParams
-	// ------------- Optional query parameter "bySimilarity" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "bySimilarity", ctx.QueryParams(), &params.BySimilarity)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter bySimilarity: %s", err))
-	}
-
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetV1SearchFeedQuery(ctx, query, params)
+	err = w.Handler.GetV1SearchFeedQuery(ctx, query)
 	return err
 }
 
@@ -177,6 +190,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/v1/search/context/:query", wrapper.GetV1SearchContextQuery)
+	router.GET(baseURL+"/v1/search/feed/similarities/:feedID", wrapper.GetV1SearchFeedSimilarities)
 	router.GET(baseURL+"/v1/search/feed/:query", wrapper.GetV1SearchFeedQuery)
 	router.GET(baseURL+"/v1/version", wrapper.GetV1Version)
 
@@ -185,22 +199,25 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"+G8AAAD//4T3I/yJEAAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

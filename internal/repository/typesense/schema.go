@@ -51,7 +51,7 @@ func GetFeedSchema(client *typesense.Client) *api.CollectionSchema {
 						ModelName    string  "json:\"model_name\""
 						ProjectId    *string "json:\"project_id,omitempty\""
 					}{
-						ModelName: "ts/all-MiniLM-L12-v2",
+						ModelName: "ts/multilingual-e5-large",
 					},
 				},
 			},
