@@ -29,11 +29,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       x-stoplight:
         id: e6uenhk2m21k5
-      parameters:
-        - schema:
-            type: boolean
-          in: query
-          name: bySimilarity
+      parameters: []
     parameters:
       - schema:
           type: string
@@ -86,11 +82,50 @@ paths:
             schema:
               type: object
               properties: {}
+  '/v1/search/feed/similarities/{feedID}':
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedDetails'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-search-feed-similarities
+      x-stoplight:
+        id: cu8bexmv3qwv6
+      parameters: []
+    parameters:
+      - schema:
+          type: string
+        name: feedID
+        in: path
+        required: true
 components:
   schemas:
     FeedItem:
       type: object
+      x-stoplight:
+        id: kwewfmf4xgq3e
+      required:
+        - id
+        - title
+        - summary
+        - link
+        - source
+        - language
+        - date
       properties:
+        id:
+          type: string
+          x-stoplight:
+            id: i41a7r351wuiy
         title:
           type: string
         summary:
@@ -107,15 +142,10 @@ components:
         date:
           type: string
           format: date-time
-      required:
-        - title
-        - summary
-        - link
-        - source
-        - language
-        - date
-      x-stoplight:
-        id: kwewfmf4xgq3e
+        '':
+          type: string
+          x-stoplight:
+            id: 6uzhltl5f1ayg
     FeedImage:
       type: object
       properties:
@@ -209,3 +239,17 @@ components:
       required:
         - commit
         - version
+    FeedDetails:
+      title: FeedDetails
+      x-stoplight:
+        id: jdfavk4q6qd6o
+      type: object
+      properties:
+        source:
+          $ref: '#/components/schemas/FeedItem'
+        similarities:
+          type: array
+          x-stoplight:
+            id: 0s2id9mhqzyv9
+          items:
+            $ref: '#/components/schemas/FeedItem'
