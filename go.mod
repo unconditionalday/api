@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/anaskhan96/soup v1.2.5
 	github.com/deepmap/oapi-codegen v1.16.3
-	github.com/getkin/kin-openapi v0.124.0
+	github.com/getkin/kin-openapi v0.125.0
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/sirupsen/logrus v1.9.3
