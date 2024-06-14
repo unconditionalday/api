@@ -105,7 +105,7 @@ require (
 	github.com/SlyMarbo/rss v1.0.5
 	github.com/loadsmart/calver-go v0.0.0-20230323142215-56cf73a68e8a
 	github.com/microcosm-cc/bluemonday v1.0.26
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/typesense/typesense-go v1.0.0
