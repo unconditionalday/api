@@ -1,57 +1,62 @@
 openapi: 3.0.2
 x-stoplight:
-  id: 44w9u0405b53e
+  id: g0km90jnbo4i0
 info:
   title: Unconditional
-  version: "1.0"
+  version: '1.0'
 servers:
-  - url: "https://api.unconditional.day/v1"
-  - url: "http://localhost:8080"
-  - url: "127.0.0.1:8080"
+  - url: 'https://api.unconditional.day/v1'
+  - url: 'http://localhost:8080'
+  - url: '127.0.0.1:8080'
 paths:
-  "/v1/search/feed/{query}":
+  '/v1/search/feed/{query}':
     get:
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/FeedItem"
-        "500":
+                  $ref: '#/components/schemas/FeedItem'
+        '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/Error"
-      parameters:
-        - name: query
-          in: path
-          required: true
-          schema:
-            type: string
+                $ref: '#/components/schemas/Error'
       x-stoplight:
-        id: wosl2fd4xhhrd
-  "/v1/search/context/{query}":
+        id: e6uenhk2m21k5
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: bySimilarity
+    parameters:
+      - schema:
+          type: string
+        name: query
+        in: path
+        required: true
+  '/v1/search/context/{query}':
     get:
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/SearchContextDetails"
-        "500":
+                $ref: '#/components/schemas/SearchContextDetails'
+        '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
       parameters:
         - name: query
           in: path
@@ -59,22 +64,22 @@ paths:
           schema:
             type: string
       x-stoplight:
-        id: idoe8qr80ebxd
-  "/v1/version":
+        id: 7c394v6kr5tff
+  /v1/version:
     get:
       summary: Your GET endpoint
       tags: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: object
-                $ref: "#/components/schemas/ServerVersion"
+                $ref: '#/components/schemas/ServerVersion'
       operationId: get-v1-version
       x-stoplight:
-        id: q4lvzczpgn9wh
+        id: oucep4v9ubq2z
       requestBody:
         content:
           application/json:
@@ -98,7 +103,7 @@ components:
           type: string
         image:
           type: object
-          $ref: "#/components/schemas/FeedImage"
+          $ref: '#/components/schemas/FeedImage'
         date:
           type: string
           format: date-time
@@ -110,7 +115,7 @@ components:
         - language
         - date
       x-stoplight:
-        id: xa4xmb6bpguaf
+        id: kwewfmf4xgq3e
     FeedImage:
       type: object
       properties:
@@ -122,11 +127,11 @@ components:
         - url
         - title
       x-stoplight:
-        id: cmmybtqamyqiy
+        id: albynchitcqzu
     SearchContextDetails:
       type: object
       x-stoplight:
-        id: 2bea7d1686f73
+        id: fhfrlaebk9ask
       properties:
         title:
           type: string
@@ -156,51 +161,51 @@ components:
         - message
         - code
       x-stoplight:
-        id: ugjrjhvkdmen2
+        id: mffsjrkb81ot5
     ServerVersion:
       title: ServerVersion
       x-stoplight:
-        id: 24qo1fm939bg5
+        id: 4m4ndcimoercb
       type: object
       properties:
         source:
-          $ref: "#/components/schemas/SourceReleaseVersion"
+          $ref: '#/components/schemas/SourceReleaseVersion'
         build:
-          $ref: "#/components/schemas/ServerBuildVersion"
+          $ref: '#/components/schemas/ServerBuildVersion'
       required:
         - source
         - build
     SourceReleaseVersion:
       title: SourceReleaseVersion
       x-stoplight:
-        id: ufsclw4vu3qp5
+        id: qrni9cae7qsr6
       type: object
       properties:
         version:
           type: string
           x-stoplight:
-            id: t6xp7ev3nprdj
+            id: g42kpmf59e9sb
         lastUpdatedAt:
           type: string
           x-stoplight:
-            id: 26hfi8gtj9bdi
+            id: ozgly07pllzwb
       required:
         - version
         - lastUpdatedAt
     ServerBuildVersion:
       title: ServerBuildVersion
       x-stoplight:
-        id: p7byzats6s3zt
+        id: a6g4vsjso6ozw
       type: object
       properties:
         commit:
           type: string
           x-stoplight:
-            id: eoik296b0ddt3
+            id: 48tl37vuwu47p
         version:
           type: string
           x-stoplight:
-            id: jup15zjavkg3a
+            id: mwqxrg5t0vvst
       required:
         - commit
         - version

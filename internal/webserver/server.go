@@ -67,8 +67,15 @@ func (s *Server) Start() error {
 }
 
 // (GET /v1/search/feed/{query})
-func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string) error {
-	feeds, err := s.feedRepo.Find(query)
+func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string, params api.GetV1SearchFeedQueryParams) error {
+	var feeds []app.Feed
+	var err error
+
+	if params.BySimilarity != nil && *params.BySimilarity {
+		feeds, err = s.feedRepo.FindBySimilarity(query)
+	} else {
+		feeds, err = s.feedRepo.Find(query)
+	}
 	if err != nil {
 		e := api.Error{
 			Code:    http.StatusInternalServerError,
