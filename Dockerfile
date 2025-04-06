@@ -37,14 +37,9 @@ ENV UNCONDITIONAL_API_FEED_REPO_HOST=${UNCONDITIONAL_API_FEED_REPO_HOST}
 ENV UNCONDITIONAL_API_FEED_REPO_KEY=${UNCONDITIONAL_API_FEED_REPO_KEY}
 ENV UNCONDITIONAL_API_LOG_ENV=${UNCONDITIONAL_API_LOG_ENV}
 
-RUN --mount=type=secret,id=UNCONDITIONAL_API_SOURCE_CLIENT_KEY \
-    --mount=type=secret,id=UNCONDITIONAL_API_FEED_REPO_HOST \
-    --mount=type=secret,id=UNCONDITIONAL_API_FEED_REPO_INDEX \
-    --mount=type=secret,id=UNCONDITIONAL_API_FEED_REPO_KEY \
-    UNCONDITIONAL_API_SOURCE_CLIENT_KEY="$(cat /run/secrets/UNCONDITIONAL_API_SOURCE_CLIENT_KEY)" \
-    UNCONDITIONAL_API_FEED_REPO_HOST="$(cat /run/secrets/UNCONDITIONAL_API_FEED_REPO_HOST)" \
-    UNCONDITIONAL_API_FEED_REPO_KEY="$(cat /run/secrets/UNCONDITIONAL_API_FEED_REPO_KEY)" \
-    /app/main index create --name feeds
+RUN /app/main index create --name feeds \
+    --feed-repo-key="${UNCONDITIONAL_API_FEED_REPO_KEY}" \
+    --feed-repo-host="${UNCONDITIONAL_API_FEED_REPO_HOST}"
 
 FROM scratch as release
 COPY --from=certificator /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
