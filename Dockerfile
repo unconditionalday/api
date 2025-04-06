@@ -1,5 +1,5 @@
 ARG ALPINE_VERSION=3
-ARG GO_VERSION=1.21
+ARG GO_VERSION=1.23
 
 FROM alpine:${ALPINE_VERSION} AS certificator
 RUN apk --update add --no-cache ca-certificates openssl git tzdata && \
