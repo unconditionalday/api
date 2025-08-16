@@ -88,7 +88,7 @@ func (s *Server) GetV1SearchFeedQuery(ctx echo.Context, query string) error {
 	fi := make([]api.FeedItem, len(feeds))
 	for i, f := range feeds {
 		fi[i] = api.FeedItem{
-			Id:       f.ID,
+			Id:       f.FeedID,
 			Source:   f.Source,
 			Date:     f.Date,
 			Language: f.Language,
@@ -112,19 +112,19 @@ func (s *Server) GetV1SearchFeedSimilarities(ctx echo.Context, feedID string) er
 	var feeds []app.Feed
 	var err error
 
-	f, err := s.feedRepo.FindByID(feedID)
-	if err != nil {
-		e := api.Error{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal Server Error",
-		}
+	// f, err := s.feedRepo.FindByID(feedID)
+	// if err != nil {
+	// 	e := api.Error{
+	// 		Code:    http.StatusInternalServerError,
+	// 		Message: "Internal Server Error",
+	// 	}
 
-		s.logger.Error("feed search", zap.Error(err))
+	// 	s.logger.Error("feed search", zap.Error(err))
 
-		return ctx.JSON(http.StatusInternalServerError, e)
-	}
+	// 	return ctx.JSON(http.StatusInternalServerError, e)
+	// }
 
-	feeds, err = s.feedRepo.FindBySimilarity(f)
+	feeds, err = s.feedRepo.FindBySimilarity(feedID)
 	if err != nil {
 		e := api.Error{
 			Code:    http.StatusInternalServerError,
@@ -139,7 +139,7 @@ func (s *Server) GetV1SearchFeedSimilarities(ctx echo.Context, feedID string) er
 	fi := make([]api.FeedItem, len(feeds))
 	for i, f := range feeds {
 		fi[i] = api.FeedItem{
-			Id:       f.ID,
+			Id:       f.FeedID,
 			Source:   f.Source,
 			Date:     f.Date,
 			Language: f.Language,
@@ -156,19 +156,19 @@ func (s *Server) GetV1SearchFeedSimilarities(ctx echo.Context, feedID string) er
 		}
 	}
 
-	fItem := api.FeedItem{
+/* 	fItem := api.FeedItem{
 		Date:     f.Date,
-		Id:       f.ID,
+		Id:       f.FeedID,
 		Language: f.Language,
 		Link:     f.Link,
 		Source:   f.Source,
 		Summary:  f.Summary,
 		Title:    f.Title,
 	}
-
+ */
 	fd := api.FeedDetails{
 		Similarities: &fi,
-		Source:       &fItem,
+		//Source:       &fItem,
 	}
 
 	return ctx.JSON(http.StatusOK, fd)

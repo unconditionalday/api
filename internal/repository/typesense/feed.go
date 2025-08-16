@@ -44,7 +44,7 @@ func (f *FeedRepository) FindByKeyword(query string) ([]app.Feed, error) {
 		}
 
 		f := app.Feed{
-			ID:       doc["id"].(string),
+			FeedID:   doc["feedID"].(string),
 			Title:    doc["title"].(string),
 			Link:     doc["link"].(string),
 			Source:   doc["source"].(string),
@@ -60,45 +60,78 @@ func (f *FeedRepository) FindByKeyword(query string) ([]app.Feed, error) {
 }
 
 func (f *FeedRepository) FindByID(id string) (app.Feed, error) {
-	d, err := f.client.Collection("feeds").Document(id).Retrieve(f.ctx)
+	searchParameters := &api.SearchCollectionParams{
+		Q:       id,
+		QueryBy: "feedID",
+	}
+	searchResult, err := f.client.Collection("feeds").Documents().Search(f.ctx, searchParameters)
 	if err != nil {
 		return app.Feed{}, err
 	}
 
-	date, err := time.Parse(time.RFC3339, d["date"].(string))
+	if searchResult.Hits == nil || len(*searchResult.Hits) == 0 {
+		return app.Feed{}, fmt.Errorf("feed with id %s not found", id)
+	}
+
+	doc := *(*searchResult.Hits)[0].Document
+
+	date, err := time.Parse(time.RFC3339, doc["date"].(string))
 	if err != nil {
 		return app.Feed{}, err
 	}
 
 	fStruct := app.Feed{
-		ID:       d["id"].(string),
-		Title:    d["title"].(string),
-		Link:     d["link"].(string),
-		Source:   d["source"].(string),
-		Language: d["language"].(string),
-		Summary:  d["summary"].(string),
+		FeedID:   doc["feedID"].(string),
+		Title:    doc["title"].(string),
+		Link:     doc["link"].(string),
+		Source:   doc["source"].(string),
+		Language: doc["language"].(string),
+		Summary:  doc["summary"].(string),
 		Date:     date,
 	}
 
 	return fStruct, nil
 }
 
-func (f *FeedRepository) FindBySimilarity(feed app.Feed) ([]app.Feed, error) {
-	vQ := fmt.Sprintf("title_summary_embedding:([], id: %s, distance_threshold:0.183)", feed.ID)
-	eF := "title_summary_embedding"
+func (f *FeedRepository) FindBySimilarity(feedID string) ([]app.Feed, error) {
+	feed, err := f.FindByID(feedID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find feed by ID: %w", err)
+	}
+
 	searchParameters := &api.SearchCollectionParams{
-		Q:             feed.Title,
-		QueryBy:       "title,title_summary_embedding",
-		VectorQuery:   &vQ,
-		ExcludeFields: &eF,
+		Q:       feed.Title + " " + feed.Summary,
+		QueryBy: "title_summary_embedding",
 	}
 	searchResult, err := f.client.Collection("feeds").Documents().Search(f.ctx, searchParameters)
 	if err != nil {
 		return nil, err
 	}
 
+	maxVectorDistance := float32(0.16576248) // Define a threshold for vector distance
+	hits := *searchResult.Hits
+	n := 0
+	for _, hit := range hits {
+		if hit.VectorDistance == nil || *hit.VectorDistance <= maxVectorDistance {
+			hits[n] = hit
+			n++
+		}
+	}
+	hits = hits[:n]
+	searchResult.Hits = &hits
+
 	feeds := make([]app.Feed, len(*searchResult.Hits))
 	for i, x := range *searchResult.Hits {
+		// If VectorDistance is present, filter by threshold
+		if x.Document != nil && x.VectorDistance != nil {
+			doc := *x.Document
+			title, _ := doc["title"].(string)
+			fmt.Printf("Title: %s, VectorDistance: %v\n", title, *x.VectorDistance)
+		}
+		if x.VectorDistance != nil && *x.VectorDistance > maxVectorDistance {
+			continue
+		}
+
 		doc := *x.Document
 
 		date, err := time.Parse(time.RFC3339, doc["date"].(string))
@@ -107,6 +140,7 @@ func (f *FeedRepository) FindBySimilarity(feed app.Feed) ([]app.Feed, error) {
 		}
 
 		f := app.Feed{
+			FeedID:   doc["feedID"].(string),
 			Title:    doc["title"].(string),
 			Link:     doc["link"].(string),
 			Source:   doc["source"].(string),
@@ -123,7 +157,7 @@ func (f *FeedRepository) FindBySimilarity(feed app.Feed) ([]app.Feed, error) {
 
 func (f *FeedRepository) Save(doc app.Feed) error {
 	docMap := map[string]interface{}{
-		"id":       generateUniqueID(doc.Link),
+		"feedID":   generateUniqueID(doc.Link),
 		"title":    doc.Title,
 		"link":     doc.Link,
 		"source":   doc.Source,
@@ -147,7 +181,7 @@ func (f *FeedRepository) Update(docs ...app.Feed) error {
 	for i, doc := range docs {
 		// Convert app.Feed to map[string]interface{} for updating
 		docMap := map[string]interface{}{
-			"id":       generateUniqueID(doc.Link),
+			"feedID":   generateUniqueID(doc.Link),
 			"title":    doc.Title,
 			"link":     doc.Link,
 			"source":   doc.Source,
