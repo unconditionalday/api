@@ -9,6 +9,10 @@ func GetFeedSchema(client *typesense.Client) *api.CollectionSchema {
 	schema := &api.CollectionSchema{
 		Fields: []api.Field{
 			{
+				Name: "feedID",
+				Type: "string",
+			},
+			{
 				Name: "title",
 				Type: "string",
 			},
@@ -51,7 +55,7 @@ func GetFeedSchema(client *typesense.Client) *api.CollectionSchema {
 						ModelName    string  "json:\"model_name\""
 						ProjectId    *string "json:\"project_id,omitempty\""
 					}{
-						ModelName: "ts/multilingual-e5-large",
+						ModelName: "ts/e5-small-v2",
 					},
 				},
 			},

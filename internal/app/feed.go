@@ -8,7 +8,8 @@ type FeedRepository interface {
 	// Search returns the results of a search query.
 	FindByKeyword(query string) ([]Feed, error)
 	// Search returns the results of a search query by similarity.
-	FindBySimilarity(doc Feed) ([]Feed, error)
+	FindBySimilarity(feedID string) ([]Feed, error)
+	// FindByID returns a document by its ID.
 	FindByID(id string) (Feed, error)
 	// Index indexes a document.
 	Save(doc Feed) error
@@ -21,7 +22,7 @@ type FeedRepository interface {
 }
 
 type Feed struct {
-	ID       string    `json:"id"`
+	FeedID   string    `json:"feed_id"`
 	Title    string    `json:"title"`
 	Link     string    `json:"link"`
 	Language string    `json:"language"`

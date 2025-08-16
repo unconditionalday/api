@@ -31,8 +31,10 @@ func updateCollection(client *typesense.Client, schema *api.CollectionSchema) er
 
 	if _, err := client.Collection(schema.Name).Update(context.Background(), u); err != nil {
 		if strings.Contains(err.Error(), "is already part of the schema") {
-			// TODO: capture the log of error
-			return nil
+			// This error indicates that the field is already part of the schema,
+			// So we need to delete the collection and recreate it.
+			_, err := client.Collection(schema.Name).Delete(context.Background())
+			return err
 		}
 
 		return err
