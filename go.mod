@@ -10,7 +10,7 @@ require (
 	github.com/labstack/gommon v0.5.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/pflag v1.0.10
-	go.uber.org/zap v1.27.1
+	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 )
 
